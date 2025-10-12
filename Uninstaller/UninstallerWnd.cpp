@@ -328,6 +328,11 @@ void CUninstallerWnd::DoUninstall()
         UpdateProgress(85, L"文件删除完成");
         Sleep(300);
         
+        // 删除开始菜单快捷方式
+        UpdateProgress(87, L"正在清理开始菜单快捷方式...");
+        CInstallHelper::RemoveStartMenuShortcut(APP_NAME);
+        Sleep(300);
+        
         // 删除注册表
         UpdateProgress(90, L"正在清理注册表...");
         CInstallHelper::RemoveUninstallRegistry(APP_NAME);

@@ -415,11 +415,17 @@ void CInstallerWnd::DoInstall()
         UpdateProgress(80, L"文件解压完成");
         Sleep(300);
         
-        // 创建桌面快捷方式
+        std::wstring exePath = m_strInstallPath + L"\\" + APP_EXE_NAME;
+        
+        // 创建开始菜单快捷方式（始终创建，用于 Windows 搜索）
+        UpdateProgress(83, L"正在创建开始菜单快捷方式...");
+        CInstallHelper::CreateStartMenuShortcut(exePath, APP_NAME);
+        Sleep(300);
+        
+        // 创建桌面快捷方式（可选）
         if (m_pDesktopCheck && m_pDesktopCheck->IsSelected())
         {
-            UpdateProgress(85, L"正在创建快捷方式...");
-            std::wstring exePath = m_strInstallPath + L"\\" + APP_EXE_NAME;
+            UpdateProgress(86, L"正在创建桌面快捷方式...");
             CInstallHelper::CreateDesktopShortcut(exePath, APP_NAME);
             Sleep(300);
         }
@@ -429,7 +435,7 @@ void CInstallerWnd::DoInstall()
         std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
         UINT64 installSize = CInstallHelper::GetDirectorySize(m_strInstallPath);
         CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_VERSION, APP_PUBLISHER,
-            m_strInstallPath, uninstallPath, installSize);
+            m_strInstallPath, uninstallPath, exePath, installSize);
         Sleep(300);
         
         // 上报安装信息

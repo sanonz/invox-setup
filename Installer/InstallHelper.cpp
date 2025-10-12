@@ -57,11 +57,79 @@ bool CInstallHelper::CreateDesktopShortcut(const std::wstring& targetPath, const
     return SUCCEEDED(hr);
 }
 
+bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, const std::wstring& shortcutName, const std::wstring& folderName)
+{
+    HRESULT hr = CoInitialize(NULL);
+    
+    // 获取开始菜单程序文件夹路径
+    WCHAR szStartMenuPath[MAX_PATH] = { 0 };
+    SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szStartMenuPath);
+    
+    // 如果没有管理员权限，使用当前用户的开始菜单
+    if (GetLastError() == ERROR_ACCESS_DENIED)
+    {
+        SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szStartMenuPath);
+    }
+    
+    // 构建快捷方式路径
+    std::wstring shortcutPath = szStartMenuPath;
+    
+    // 如果指定了文件夹名称，创建子文件夹
+    if (!folderName.empty())
+    {
+        shortcutPath += L"\\";
+        shortcutPath += folderName;
+        CreateDirectory(shortcutPath.c_str(), NULL);
+    }
+    
+    shortcutPath += L"\\";
+    shortcutPath += shortcutName;
+    shortcutPath += L".lnk";
+    
+    // 创建快捷方式
+    IShellLink* pShellLink = NULL;
+    hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void**)&pShellLink);
+    
+    if (SUCCEEDED(hr))
+    {
+        pShellLink->SetPath(targetPath.c_str());
+        
+        // 设置工作目录
+        std::wstring workDir = targetPath;
+        size_t pos = workDir.find_last_of(L"\\");
+        if (pos != std::wstring::npos)
+        {
+            workDir = workDir.substr(0, pos);
+        }
+        pShellLink->SetWorkingDirectory(workDir.c_str());
+        
+        // 设置图标
+        pShellLink->SetIconLocation(targetPath.c_str(), 0);
+        
+        // 保存快捷方式
+        IPersistFile* pPersistFile = NULL;
+        hr = pShellLink->QueryInterface(IID_IPersistFile, (void**)&pPersistFile);
+        
+        if (SUCCEEDED(hr))
+        {
+            hr = pPersistFile->Save(shortcutPath.c_str(), TRUE);
+            pPersistFile->Release();
+        }
+        
+        pShellLink->Release();
+    }
+    
+    CoUninitialize();
+    
+    return SUCCEEDED(hr);
+}
+
 bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     const std::wstring& version,
     const std::wstring& publisher,
     const std::wstring& installPath,
     const std::wstring& uninstallPath,
+    const std::wstring& iconPath,
     UINT64 estimatedSize)
 {
     std::wstring regPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
@@ -101,6 +169,13 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
         RegSetValueEx(hKey, L"UninstallString", 0, REG_SZ,
             (BYTE*)uninstallCmd.c_str(), (uninstallCmd.length() + 1) * sizeof(WCHAR));
         
+        // 写入应用图标路径
+        if (!iconPath.empty())
+        {
+            RegSetValueEx(hKey, L"DisplayIcon", 0, REG_SZ,
+                (BYTE*)iconPath.c_str(), (iconPath.length() + 1) * sizeof(WCHAR));
+        }
+        
         // 写入估计大小（KB）
         DWORD dwSize = (DWORD)(estimatedSize / 1024);
         RegSetValueEx(hKey, L"EstimatedSize", 0, REG_DWORD, (BYTE*)&dwSize, sizeof(DWORD));
@@ -132,6 +207,61 @@ bool CInstallHelper::RemoveUninstallRegistry(const std::wstring& appName)
     }
     
     return lResult == ERROR_SUCCESS;
+}
+
+bool CInstallHelper::RemoveStartMenuShortcut(const std::wstring& shortcutName, const std::wstring& folderName)
+{
+    // 尝试从公共开始菜单删除
+    WCHAR szStartMenuPath[MAX_PATH] = { 0 };
+    SHGetFolderPath(NULL, CSIDL_COMMON_PROGRAMS, NULL, 0, szStartMenuPath);
+    
+    std::wstring shortcutPath = szStartMenuPath;
+    if (!folderName.empty())
+    {
+        shortcutPath += L"\\";
+        shortcutPath += folderName;
+    }
+    shortcutPath += L"\\";
+    shortcutPath += shortcutName;
+    shortcutPath += L".lnk";
+    
+    bool success = DeleteFile(shortcutPath.c_str()) != 0;
+    
+    // 如果文件夹为空，删除文件夹
+    if (!folderName.empty())
+    {
+        std::wstring folderPath = szStartMenuPath;
+        folderPath += L"\\";
+        folderPath += folderName;
+        RemoveDirectory(folderPath.c_str());
+    }
+    
+    // 尝试从当前用户开始菜单删除
+    SHGetFolderPath(NULL, CSIDL_PROGRAMS, NULL, 0, szStartMenuPath);
+    
+    shortcutPath = szStartMenuPath;
+    if (!folderName.empty())
+    {
+        shortcutPath += L"\\";
+        shortcutPath += folderName;
+    }
+    shortcutPath += L"\\";
+    shortcutPath += shortcutName;
+    shortcutPath += L".lnk";
+    
+    if (DeleteFile(shortcutPath.c_str()))
+        success = true;
+    
+    // 如果文件夹为空，删除文件夹
+    if (!folderName.empty())
+    {
+        std::wstring folderPath = szStartMenuPath;
+        folderPath += L"\\";
+        folderPath += folderName;
+        ::RemoveDirectory(folderPath.c_str());
+    }
+    
+    return success;
 }
 
 std::wstring CInstallHelper::GetProgramFilesPath()
