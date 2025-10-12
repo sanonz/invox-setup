@@ -1,5 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "InstallHelper.h"
+#include "Config.h"
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <atlbase.h>
@@ -132,8 +133,7 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     const std::wstring& iconPath,
     UINT64 estimatedSize)
 {
-    std::wstring regPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-    regPath += appName;
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + appName;
     
     HKEY hKey = NULL;
     LONG lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, NULL,
@@ -197,8 +197,7 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
 
 bool CInstallHelper::RemoveUninstallRegistry(const std::wstring& appName)
 {
-    std::wstring regPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\";
-    regPath += appName;
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + appName;
     
     LONG lResult = RegDeleteKey(HKEY_LOCAL_MACHINE, regPath.c_str());
     if (lResult != ERROR_SUCCESS)

@@ -25,7 +25,7 @@
 #define APP_ARCHIVE     L"app.7z"
 
 // 注册表路径
-#define REG_UNINSTALL_PATH L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"APP_NAME
+#define REG_UNINSTALL_PATH L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
 
 // 协议 URL
 #define AGREEMENT_URL   L"https://yourcompany.com/agreement.html"
