@@ -29,8 +29,7 @@ CInstallerWnd::CInstallerWnd()
     , m_processedBytes(0)
 {
     // 默认安装路径
-    // m_strInstallPath = CInstallHelper::GetProgramFilesPath();
-    m_strInstallPath = _T("C:\\");
+    m_strInstallPath = CInstallHelper::GetProgramFilesPath();
     m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
 }
 
