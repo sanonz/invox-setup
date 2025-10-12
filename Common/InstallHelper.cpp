@@ -431,4 +431,3 @@ bool CInstallHelper::ExtractBinaryResource(HINSTANCE hInstance, UINT resourceId,
 
     return bWriteSuccess && (dwWritten == dwSize);
 }
-

@@ -478,15 +478,15 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h" />
-    <ClInclude Include="Analytics.h" />
-    <ClInclude Include="InstallHelper.h" />
+    <ClInclude Include="..\Common\Config.h" />
+    <ClInclude Include="..\Common\Analytics.h" />
+    <ClInclude Include="..\Common\InstallHelper.h" />
     <ClInclude Include="UninstallerWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Analytics.cpp" />
-    <ClCompile Include="InstallHelper.cpp" />
+    <ClCompile Include="..\Common\Analytics.cpp" />
+    <ClCompile Include="..\Common\InstallHelper.cpp" />
     <ClCompile Include="UninstallerWnd.cpp" />
     <ClCompile Include="Uninstaller.cpp" />
     <ClCompile Include="StdAfx.cpp">

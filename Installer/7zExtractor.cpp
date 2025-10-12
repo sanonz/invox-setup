@@ -1,7 +1,7 @@
 ﻿#include "StdAfx.h"
 #include "7zExtractor.h"
 #include "7zStreamHelpers.h"
-#include "InstallHelper.h"
+#include "..\Common\InstallHelper.h"
 #include "resource.h"
 #include <shlwapi.h>
 #include <ShlObj.h>

@@ -1,9 +1,9 @@
 ﻿#include "StdAfx.h"
-#include "resource.h"
 #include "InstallerWnd.h"
-#include "Config.h"
-#include "InstallHelper.h"
-#include "Analytics.h"
+#include "resource.h"
+#include "..\Common\Config.h"
+#include "..\Common\InstallHelper.h"
+#include "..\Common\Analytics.h"
 #include <shlobj.h>
 #include <shellapi.h>
 

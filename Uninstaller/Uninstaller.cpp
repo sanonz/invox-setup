@@ -1,6 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "UninstallerWnd.h"
-#include "Config.h"
+#include "..\Common\Config.h"
 
 void InitResource()
 {

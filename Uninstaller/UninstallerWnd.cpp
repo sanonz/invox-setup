@@ -1,8 +1,8 @@
 ﻿#include "StdAfx.h"
 #include "UninstallerWnd.h"
-#include "Config.h"
-#include "InstallHelper.h"
-#include "Analytics.h"
+#include "..\Common\Config.h"
+#include "..\Common\InstallHelper.h"
+#include "..\Common\Analytics.h"
 #include <shlobj.h>
 
 #define WM_UNINSTALL_PROGRESS (WM_USER + 100)

@@ -1,6 +1,6 @@
 ﻿#include "StdAfx.h"
 #include "InstallerWnd.h"
-#include "Config.h"
+#include "..\Common\Config.h"
 
 void InitResource()
 {

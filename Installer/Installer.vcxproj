@@ -478,20 +478,20 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Config.h" />
-    <ClInclude Include="Analytics.h" />
+    <ClInclude Include="..\Common\Config.h" />
+    <ClInclude Include="..\Common\Analytics.h" />
+    <ClInclude Include="..\Common\InstallHelper.h" />
     <ClInclude Include="7zTypes.h" />
     <ClInclude Include="7zExtractor.h" />
     <ClInclude Include="7zStreamHelpers.h" />
-    <ClInclude Include="InstallHelper.h" />
     <ClInclude Include="InstallerWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Analytics.cpp" />
+    <ClCompile Include="..\Common\Analytics.cpp" />
+    <ClCompile Include="..\Common\InstallHelper.cpp" />
     <ClCompile Include="7zExtractor.cpp" />
     <ClCompile Include="7zStreamHelpers.cpp" />
-    <ClCompile Include="InstallHelper.cpp" />
     <ClCompile Include="InstallerWnd.cpp" />
     <ClCompile Include="Installer.cpp" />
     <ClCompile Include="StdAfx.cpp">
