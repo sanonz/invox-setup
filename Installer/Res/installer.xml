@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window size="600,450" caption="0,0,0,35" sizebox="4,4,4,4" roundcorner="5,5">
+  <Font id="0" name="微软雅黑" size="12"/>
+  <Font id="1" name="微软雅黑" size="14" bold="true"/>
+  <Font id="2" name="微软雅黑" size="16" bold="true"/>
+  <Font id="3" name="微软雅黑" size="10"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <!-- 标题栏 -->
+    <HorizontalLayout height="35" bkcolor="#FF2C3E50">
+      <Label text="installer_title" resourcetext="true" textcolor="#FFFFFFFF" font="1" padding="10,0,0,0"/>
+      <Control />
+      <Button name="minbtn" width="30" height="25" text="-" textcolor="#FFFFFFFF" bkcolor="#FF2C3E50" hottextcolor="#FFAAAAAA"/>
+      <Button name="closebtn" width="30" height="25" text="×" textcolor="#FFFFFFFF" font="1" bkcolor="#FF2C3E50" hottextcolor="#FFFF0000"/>
+    </HorizontalLayout>
+    
+    <!-- 第一页：欢迎页 -->
+    <Container name="page1">
+      <VerticalLayout padding="30,20,30,20">
+        <!-- Logo -->
+        <HorizontalLayout height="80">
+          <Control />
+          <Control width="80" height="80" bkcolor="#FF3498DB"/>
+          <Control />
+        </HorizontalLayout>
+        
+        <Label text="welcome_text" resourcetext="true" font="2" textcolor="#FF2C3E50" align="center" height="40"/>
+        
+        <Control height="20"/>
+        
+        <!-- 协议 -->
+        <HorizontalLayout height="25">
+          <CheckBox name="agree_check" width="20" height="20"/>
+          <Label text="agree_prefix" resourcetext="true" textcolor="#FF333333" padding="5,0,0,0"/>
+          <Label name="agreement_link" text="agreement_text" resourcetext="true" textcolor="#FF3498DB" padding="2,0,0,0"/>
+        </HorizontalLayout>
+        
+        <Control height="15"/>
+        
+        <!-- 自定义安装 -->
+        <HorizontalLayout height="25">
+          <CheckBox name="custom_check" width="20" height="20"/>
+          <Label text="custom_install" resourcetext="true" textcolor="#FF333333" padding="5,0,0,0"/>
+        </HorizontalLayout>
+        
+        <!-- 自定义路径区域 -->
+        <VerticalLayout name="custom_layout" visible="false" padding="0,10,0,0">
+          <HorizontalLayout height="30">
+            <Label text="install_path" resourcetext="true" width="80" textcolor="#FF666666"/>
+            <Edit name="path_edit" bkcolor="#FFF5F5F5" textcolor="#FF333333" bordercolor="#FFCCCCCC" bordersize="1"/>
+            <Button name="browse_btn" text="browse" resourcetext="true" width="60" height="28" textcolor="#FFFFFFFF" bkcolor="#FF3498DB" borderround="3,3" padding="5,0,5,0"/>
+          </HorizontalLayout>
+        </VerticalLayout>
+        
+        <Control height="15"/>
+        
+        <!-- 桌面快捷方式 -->
+        <HorizontalLayout height="25">
+          <CheckBox name="desktop_check" width="20" height="20"/>
+          <Label text="desktop_shortcut" resourcetext="true" textcolor="#FF333333" padding="5,0,0,0"/>
+        </HorizontalLayout>
+        
+        <Control />
+        
+        <!-- 安装按钮 -->
+        <HorizontalLayout height="40">
+          <Control />
+          <Button name="install_btn" text="install_now" resourcetext="true" width="200" height="40" textcolor="#FFFFFFFF" font="1" bkcolor="#FF27AE60" borderround="5,5" enabled="false" disabledbkcolor="#FFCCCCCC"/>
+          <Control />
+        </HorizontalLayout>
+        
+        <Control />
+      </VerticalLayout>
+    </Container>
+    
+    <!-- 第二页：安装进度 -->
+    <Container name="page2" visible="false">
+      <VerticalLayout padding="30,20,30,20">
+        <!-- Logo -->
+        <HorizontalLayout height="80">
+          <Control />
+          <Control width="80" height="80" bkcolor="#FF3498DB"/>
+          <Control />
+        </HorizontalLayout>
+        
+        <Control height="30"/>
+        
+        <!-- 进度条 -->
+        <Progress name="install_progress" height="20" bkcolor="#0F333333" forecolor="#FF0000FF" min="0" max="100" value="0"/>
+        
+        <Control height="20"/>
+        
+        <!-- 进度文本 -->
+        <Label name="progress_text" text="installing" resourcetext="true" textcolor="#FF666666" align="center" height="25"/>
+        
+        <Control />
+        
+        <!-- 立即打开按钮 -->
+        <HorizontalLayout name="launch_layout" height="40">
+          <Control />
+          <Button name="launch_btn" text="launch_now" resourcetext="true" width="200" height="40" textcolor="#FFFFFFFF" font="1" bkcolor="#FF3498DB" borderround="5,5" visible="false"/>
+          <Control />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Container>
+  </VerticalLayout>
+</Window>

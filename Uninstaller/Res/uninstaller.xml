@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window size="500,400" caption="0,0,0,35" sizebox="4,4,4,4" roundcorner="5,5">
+  <Font id="0" name="微软雅黑" size="12"/>
+  <Font id="1" name="微软雅黑" size="14" bold="true"/>
+  <Font id="2" name="微软雅黑" size="16" bold="true"/>
+  <Font id="3" name="微软雅黑" size="10"/>
+  
+  <VerticalLayout bkcolor="#FFFFFFFF">
+    <!-- 标题栏 -->
+    <HorizontalLayout height="35" bkcolor="#FFE74C3C">
+      <Label text="uninstaller_title" resourcetext="true" textcolor="#FFFFFFFF" font="1" padding="10,0,0,0"/>
+      <Control />
+      <Button name="minbtn" width="30" height="25" text="-" textcolor="#FFFFFFFF" bkcolor="#FFE74C3C" hottextcolor="#FFAAAAAA"/>
+      <Button name="closebtn" width="30" height="25" text="×" textcolor="#FFFFFFFF" font="1" bkcolor="#FFE74C3C" hottextcolor="#FFFF0000"/>
+    </HorizontalLayout>
+    
+    <!-- 第一页：反馈页 -->
+    <Container name="page1">
+      <VerticalLayout padding="30,20,30,20">
+        <Label text="uninstall_title" resourcetext="true" font="2" textcolor="#FFE74C3C" align="center" height="40"/>
+        
+        <Control height="20"/>
+        
+        <!-- 卸载原因 -->
+        <Label text="reason_label" resourcetext="true" textcolor="#FF333333" font="1" height="25"/>
+        
+        <Control height="10"/>
+        
+        <VerticalLayout>
+          <HorizontalLayout height="30">
+            <Option name="reason1" text="reason1_text" group="reason" selected="true" width="20" height="20"/>
+            <Label text="reason1_text" resourcetext="true" textcolor="#FF666666" padding="5,0,0,0"/>
+          </HorizontalLayout>
+          
+          <HorizontalLayout height="30">
+            <Option name="reason2" text="reason2_text" group="reason" width="20" height="20"/>
+            <Label text="reason2_text" resourcetext="true" textcolor="#FF666666" padding="5,0,0,0"/>
+          </HorizontalLayout>
+          
+          <HorizontalLayout height="30">
+            <Option name="reason3" text="reason3_text" group="reason" width="20" height="20"/>
+            <Label text="reason3_text" resourcetext="true" textcolor="#FF666666" padding="5,0,0,0"/>
+          </HorizontalLayout>
+        </VerticalLayout>
+        
+        <Control height="20"/>
+        
+        <!-- 用户反馈 -->
+        <Label text="feedback_label" resourcetext="true" textcolor="#FF333333" font="1" height="25"/>
+        
+        <Control height="10"/>
+        
+        <RichEdit name="feedback_edit" height="80" bkcolor="#FFF5F5F5" textcolor="#FF333333" bordercolor="#FFCCCCCC" bordersize="1" multiline="true" vscrollbar="true"/>
+        
+        <Control />
+        
+        <!-- 卸载按钮 -->
+        <HorizontalLayout height="40">
+          <Control />
+          <Button name="uninstall_btn" text="uninstall_btn" resourcetext="true" width="200" height="40" textcolor="#FFFFFFFF" font="1" bkcolor="#FFE74C3C" borderround="5,5"/>
+          <Control />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Container>
+    
+    <!-- 第二页：卸载进度 -->
+    <Container name="page2" visible="false">
+      <VerticalLayout padding="30,20,30,20">
+        <!-- Logo -->
+        <HorizontalLayout height="80">
+          <Control />
+          <Control width="80" height="80" bkcolor="#FFE74C3C"/>
+          <Control />
+        </HorizontalLayout>
+        
+        <Control height="30"/>
+        
+        <!-- 进度条 -->
+        <Progress name="uninstall_progress" height="20" bkcolor="#0F333333" forecolor="#FF0000FF" min="0" max="100" value="0"/>
+        
+        <Control height="20"/>
+        
+        <!-- 进度文本 -->
+        <Label name="progress_text" text="uninstalling" resourcetext="true" textcolor="#FF666666" align="center" height="25"/>
+        
+        <!-- 完成文本 -->
+        <Label name="complete_text" text="uninstall_complete" resourcetext="true" textcolor="#FF27AE60" font="1" align="center" height="25" visible="false"/>
+        
+        <Control />
+        
+        <!-- 再见按钮 -->
+        <HorizontalLayout name="goodbye_layout" height="40">
+          <Control />
+          <Button name="goodbye_btn" text="goodbye_btn" resourcetext="true" width="200" height="40" textcolor="#FFFFFFFF" font="1" bkcolor="#FF95A5A6" borderround="5,5" visible="false"/>
+          <Control />
+        </HorizontalLayout>
+      </VerticalLayout>
+    </Container>
+  </VerticalLayout>
+</Window>

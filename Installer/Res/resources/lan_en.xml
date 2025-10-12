@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Res>
+  <Text id="installer_title" value="Installer" />
+  <Text id="welcome_text" value="Welcome to Install" />
+  <Text id="agree_prefix" value="I have read and agree to the" />
+  <Text id="agreement_text" value="User Agreement" />
+  <Text id="custom_install" value="Custom Installation" />
+  <Text id="install_path" value="Install Path:" />
+  <Text id="browse" value="Browse" />
+  <Text id="desktop_shortcut" value="Create Desktop Shortcut" />
+  <Text id="install_now" value="Install Now" />
+  <Text id="installing" value="Installing..." />
+  <Text id="launch_now" value="Launch Now" />
+</Res>

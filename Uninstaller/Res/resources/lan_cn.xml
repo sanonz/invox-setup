@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Res>
+  <Text id="uninstaller_title" value="卸载程序" />
+  <Text id="uninstall_title" value="您确定要卸载吗？" />
+  <Text id="reason_label" value="请告诉我们卸载原因：" />
+  <Text id="reason1_text" value="不需要了" />
+  <Text id="reason2_text" value="安装失败" />
+  <Text id="reason3_text" value="其他" />
+  <Text id="feedback_label" value="意见反馈（可选）：" />
+  <Text id="uninstall_btn" value="残忍卸载" />
+  <Text id="uninstalling" value="正在卸载..." />
+  <Text id="uninstall_complete" value="卸载完成！感谢您的使用。" />
+  <Text id="goodbye_btn" value="再见" />
+</Res>
