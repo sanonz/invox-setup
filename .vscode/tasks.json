@@ -1,0 +1,27 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build Setup",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\" && msbuild Setup.sln /p:Configuration=Release /p:Platform=x64"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/c"]
+        }
+      },
+      "problemMatcher": ["$msCompile"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Build the Setup.sln project"
+    }
+  ],
+  "version": "2.0.0"
+}
