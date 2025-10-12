@@ -1,6 +1,7 @@
 ﻿#include "StdAfx.h"
 #include "Analytics.h"
 #include <sstream>
+#include <iomanip>
 
 CAnalytics* CAnalytics::m_pInstance = NULL;
 
@@ -45,6 +46,34 @@ std::wstring CAnalytics::StringToWString(const std::string& str)
     return wstrTo;
 }
 
+std::string CAnalytics::EscapeJsonString(const std::string& str)
+{
+    std::ostringstream oss;
+    for (char ch : str)
+    {
+        switch (ch)
+        {
+        case '\\': oss << "\\\\"; break;
+        case '\"': oss << "\\\""; break;
+        case '\b': oss << "\\b"; break;
+        case '\f': oss << "\\f"; break;
+        case '\n': oss << "\\n"; break;
+        case '\r': oss << "\\r"; break;
+        case '\t': oss << "\\t"; break;
+        default:
+            if ('\x00' <= ch && ch <= '\x1f')
+            {
+                oss << "\\u" << std::hex << std::setw(4) << std::setfill('0') << (int)ch;
+            }
+            else
+            {
+                oss << ch;
+            }
+        }
+    }
+    return oss.str();
+}
+
 std::string CAnalytics::MapToJson(const std::map<std::wstring, std::wstring>& params)
 {
     std::ostringstream oss;
@@ -54,7 +83,7 @@ std::string CAnalytics::MapToJson(const std::map<std::wstring, std::wstring>& pa
     {
         if (!first) oss << ",";
         first = false;
-        oss << "\"" << WStringToString(pair.first) << "\":\"" << WStringToString(pair.second) << "\"";
+        oss << "\"" << EscapeJsonString(WStringToString(pair.first)) << "\":\"" << EscapeJsonString(WStringToString(pair.second)) << "\"";
     }
     oss << "}";
     return oss.str();

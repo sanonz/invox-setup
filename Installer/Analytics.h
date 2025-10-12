@@ -34,6 +34,9 @@ private:
     // 将参数转换为 JSON 格式
     std::string MapToJson(const std::map<std::wstring, std::wstring>& params);
     
+    // JSON 字符串转义
+    std::string EscapeJsonString(const std::string& str);
+    
     // 字符串转换
     std::string WStringToString(const std::wstring& wstr);
     std::wstring StringToWString(const std::string& str);
