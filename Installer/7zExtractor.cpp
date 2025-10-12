@@ -17,7 +17,7 @@ C7zExtractor::C7zExtractor()
     // 初始化 COM
     CoInitialize(NULL);
     
-    // 初始化 7z.dll
+    // 初始化 7zxa.dll
     Init7zDll();
 }
 
@@ -44,24 +44,24 @@ bool C7zExtractor::Init7zDll()
     GetModuleFileName(NULL, szTempPath, MAX_PATH);
     PathRemoveFileSpec(szTempPath);
     
-    // 构建 7z.dll 路径
+    // 构建 7zxa.dll 路径
     std::wstring str7zDllPath = szTempPath;
     str7zDllPath = str7zDllPath.substr(0, str7zDllPath.length() - 3);
-    str7zDllPath += L"3rd\\7z.dll";
+    str7zDllPath += L"3rd\\7zxa.dll";
 #else
-    // 构建 7z.dll 临时路径
+    // 构建 7zxa.dll 临时路径
     std::wstring str7zDllPath = szTempPath;
-    str7zDllPath += L"Installer_Temp\\7z.dll";
+    str7zDllPath += L"Installer_Temp\\7zxa.dll";
     
-    // 从资源提取 7z.dll（使用 CInstallHelper 统一的提取函数）
+    // 从资源提取 7zxa.dll（使用 CInstallHelper 统一的提取函数）
     HINSTANCE hInstance = GetModuleHandle(NULL);
-    if (!CInstallHelper::ExtractBinaryResource(hInstance, IDR_7Z_DLL, str7zDllPath))
+    if (!CInstallHelper::ExtractBinaryResource(hInstance, IDR_7ZXA_DLL, str7zDllPath))
     {
         return false;
     }
 #endif    // _DEBUG
     
-    // 加载 7z.dll
+    // 加载 7zxa.dll
     m_h7zDll = LoadLibrary(str7zDllPath.c_str());
     if (!m_h7zDll)
     {

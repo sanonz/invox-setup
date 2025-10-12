@@ -10,7 +10,7 @@ typedef unsigned long long UInt64;
 typedef int Int32;
 typedef long long Int64;
 
-// 7z.dll COM 接口定义
+// 7zxa.dll COM 接口定义
 
 // GUID 定义
 static const GUID CLSID_CFormat7z = 
@@ -104,7 +104,7 @@ DECLARE_INTERFACE_(IInArchive, IUnknown)
     STDMETHOD(GetArchivePropertyInfo)(UInt32 index, BSTR *name, PROPID *propID, VARTYPE *varType) PURE;
 };
 
-// 7z.dll 导出函数类型
+// 7zxa.dll 导出函数类型
 typedef HRESULT (STDAPICALLTYPE *CreateObjectFunc)(const GUID *clsid, const GUID *iid, void **outObject);
 
 // 提取模式

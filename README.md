@@ -1,6 +1,12 @@
 # 安装/卸载器
 
-本项目基于 DuiLib 实现了一个功能完整的 Windows 应用安装和卸载程序，体积非常小，支持安装过程数据上报，可使用类似 HTML 方式布局。
+本项目基于 DuiLib 框架开发，提供了功能完整的 Windows 应用安装/卸载解决方案。具有以下特点：
+
+- **轻量级**：整体体积仅 2MB+，无需额外依赖
+- **数据上报**：内置 Analytics 支持，可追踪安装/卸载行为
+- **界面灵活**：采用类 HTML 的 XML 布局方式，易于定制
+- **国际化**：支持中英文等多语言切换
+- **用户友好**：提供进度显示、协议确认、路径选择等完整安装体验
 
 ## 配置说明
 
@@ -11,7 +17,7 @@
 #define APP_VERSION     L"1.0.0"              // 应用版本
 #define APP_PUBLISHER   L"YourCompany"        // 发布者
 #define APP_EXE_NAME    L"MyApplication.exe"  // 主程序名
-#define APP_UNINSTALL_NAME L"Uninstaller.exe"   // 卸载程序名
+#define APP_UNINSTALL_NAME L"Uninstaller.exe" // 卸载程序名
 #define APP_ARCHIVE     L"app.7z"             // 安装包文件名
 #define AGREEMENT_URL   L"https://..."        // 协议地址
 #define ANALYTICS_ENDPOINT L"https://..."     // 分析 API 端点
@@ -19,10 +25,10 @@
 
 ### 准备安装包
 
-1. 将需要安装的文件压缩为 `app.7z`
-2. 将 `app.7z` 放在安装程序同目录
-3. 准备 `7z.exe` 和 `7z.dll` 文件（放在安装程序同目录）
-4. 确保卸载程序 `Uninstall.exe` 包含在压缩包中
+1. 将需要安装的文件压缩为 `app.7z`，放在：`bin/app.7z`
+2. 确保卸载程序 `Uninstall.exe` 包含在 `app.7z` 压缩包根目录中
+3. 把 `Installer/Res/*` 中资源压缩为 `Installer/Res/resources.zip`
+4. 把 `Uninstaller/Res/*` 中资源压缩为 `Uninstaller/Res/resources.zip`
 
 ### 国际化配置
 
@@ -44,12 +50,15 @@
 
 1. 打开 Visual Studio
 2. 分别编译 Installer 和 Uninstaller 项目
-3. 将编译后的程序与必要资源打包：
+3. 编译后的 Debug 程序需要如下资源配合使用：
    - Installer.exe
    - Uninstaller.exe
    - Res 文件夹
-   - 7z.exe 和 7z.dll
+   - 7zxa.dll
    - app.7z（压缩的应用文件）
+4. 编译后的 Release 为独立可运行的程序
+   - Installer.exe
+   - Uninstaller.exe
 
 ## 注册表结构
 
@@ -57,7 +66,11 @@
 
 ```
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
+```
+
 或
+
+```
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
 ```
 
@@ -146,57 +159,6 @@ CAnalytics::GetInstance()->ReportUninstall(
 - `bordercolor` - 边框颜色
 - `font` - 字体 ID（在 XML 开头定义）
 - `normalimage` / `hotimage` / `pushedimage` - 按钮图片
-
-## 技术要点
-
-### 1. 多线程安装/卸载
-
-使用独立线程执行安装/卸载操作，避免界面卡顿：
-
-```cpp
-m_hInstallThread = CreateThread(NULL, 0, InstallThreadProc, this, 0, NULL);
-```
-
-通过 PostMessage 更新 UI 进度：
-
-```cpp
-PostMessage(m_hWnd, WM_INSTALL_PROGRESS, percent, (LPARAM)pText);
-```
-
-### 2. 进度回调
-
-7z 解压提供进度回调：
-
-```cpp
-void OnExtractProgress(UINT64 bytesProcessed, UINT64 totalBytes, void* userData)
-{
-    int percent = (int)(bytesProcessed * 100 / totalBytes);
-    // 更新进度...
-}
-```
-
-### 3. 卸载程序自删除
-
-使用批处理延迟删除：
-
-```batch
-@echo off
-timeout /t 2 /nobreak > nul
-del /f /q "C:\Path\To\Uninstall.exe"
-rd /s /q "C:\Path\To\AppDir"
-del /f /q "%~f0"
-```
-
-### 4. 系统语言检测
-
-```cpp
-LANGID langId = GetUserDefaultUILanguage();
-WORD primaryLang = PRIMARYLANGID(langId);
-if (primaryLang == LANG_CHINESE)
-    return L"cn";
-else
-    return L"en";
-```
 
 ## 许可证
 

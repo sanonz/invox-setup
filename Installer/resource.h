@@ -4,7 +4,7 @@
 //
 #define IDR_MAINFRAME                   101
 #if !defined(_DEBUG)
-#define IDR_7Z_DLL                      102
+#define IDR_7ZXA_DLL                    102
 #define IDR_APP_7Z                      103
 #endif    // _DEBUG
 

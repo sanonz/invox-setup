@@ -27,18 +27,18 @@ private:
     ProgressCallback m_progressCallback;
     void* m_pUserData;
     
-    // 7z.dll 动态库句柄
+    // 7zxa.dll 动态库句柄
     HMODULE m_h7zDll;
     
     // CreateObject 函数指针
     CreateObjectFunc m_pfnCreateObject;
     
-    // 初始化 7z.dll
+    // 初始化 7zxa.dll
     bool Init7zDll();
     
-    // 释放 7z.dll
+    // 释放 7zxa.dll
     void Free7zDll();
     
-    // 使用 7z.dll 解压
+    // 使用 7zxa.dll 解压
     bool ExtractWith7zDll(const std::wstring& archivePath, const std::wstring& destPath);
 };
