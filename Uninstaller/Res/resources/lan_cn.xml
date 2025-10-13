@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Res>
   <Text id="uninstaller_title" value="卸载程序" />
-  <Text id="uninstall_title" value="您确定要卸载吗？" />
-  <Text id="reason_label" value="请告诉我们卸载原因：" />
+  <Text id="welcome_text" value="Invox Setup" />
+  <Text id="reason_label" value="卸载原因：" />
   <Text id="reason1_text" value="不需要了" />
   <Text id="reason2_text" value="安装失败" />
   <Text id="reason3_text" value="其他" />

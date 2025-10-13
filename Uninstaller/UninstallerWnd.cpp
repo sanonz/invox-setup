@@ -20,6 +20,7 @@ CUninstallerWnd::CUninstallerWnd()
     , m_pGoodbyeBtn(NULL)
     , m_pPage1(NULL)
     , m_pPage2(NULL)
+    , m_pPage3(NULL)
     , m_hUninstallThread(NULL)
     , m_bUninstalling(false)
 {
@@ -81,18 +82,23 @@ LRESULT CUninstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 void CUninstallerWnd::InitWindow()
 {
-    // 获取控件
+    // 获取页面容器
     m_pPage1 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page1")));
     m_pPage2 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page2")));
+    m_pPage3 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page3")));
     
+    // 获取第一页控件（反馈页面）
     m_pReasonOption1 = static_cast<COptionUI*>(m_pm.FindControl(_T("reason1")));
     m_pReasonOption2 = static_cast<COptionUI*>(m_pm.FindControl(_T("reason2")));
     m_pReasonOption3 = static_cast<COptionUI*>(m_pm.FindControl(_T("reason3")));
     m_pFeedbackEdit = static_cast<CRichEditUI*>(m_pm.FindControl(_T("feedback_edit")));
     m_pUninstallBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("uninstall_btn")));
     
+    // 获取第二页控件（卸载进度页面）
     m_pProgress = static_cast<CProgressUI*>(m_pm.FindControl(_T("uninstall_progress")));
     m_pProgressText = static_cast<CLabelUI*>(m_pm.FindControl(_T("progress_text")));
+    
+    // 获取第三页控件（卸载完成页面）
     m_pCompleteText = static_cast<CLabelUI*>(m_pm.FindControl(_T("complete_text")));
     m_pGoodbyeBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("goodbye_btn")));
     
@@ -101,18 +107,8 @@ void CUninstallerWnd::InitWindow()
     {
         m_pReasonOption1->Selected(true);
     }
-    
-    if (m_pCompleteText)
-    {
-        m_pCompleteText->SetVisible(false);
-    }
-    
-    if (m_pGoodbyeBtn)
-    {
-        m_pGoodbyeBtn->SetVisible(false);
-    }
 
-    // 显示第一页
+    // 显示第一页（反馈页面）
     SwitchToPage(1);
     
     // 设置分析端点
@@ -161,6 +157,11 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
             SelfDelete();
             Close();
         }
+        else
+        {
+            // 通用处理：检查是否有关联控件
+            HandleRelatedControlClick(msg.pSender);
+        }
     }
 }
 
@@ -190,25 +191,8 @@ LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         
         if (success)
         {
-            if (m_pProgress)
-            {
-                m_pProgress->SetVisible(false);
-            }
-            
-            if (m_pProgressText)
-            {
-                m_pProgressText->SetVisible(false);
-            }
-            
-            if (m_pCompleteText)
-            {
-                m_pCompleteText->SetVisible(true);
-            }
-            
-            if (m_pGoodbyeBtn)
-            {
-                m_pGoodbyeBtn->SetVisible(true);
-            }
+            // 切换到第三页（卸载完成页面）
+            SwitchToPage(3);
         }
         else
         {
@@ -233,6 +217,11 @@ void CUninstallerWnd::SwitchToPage(int pageIndex)
     if (m_pPage2)
     {
         m_pPage2->SetVisible(pageIndex == 2);
+    }
+    
+    if (m_pPage3)
+    {
+        m_pPage3->SetVisible(pageIndex == 3);
     }
 }
 
@@ -427,6 +416,45 @@ void CUninstallerWnd::SelfDelete()
         {
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
+        }
+    }
+}
+
+void CUninstallerWnd::HandleRelatedControlClick(CControlUI* pControl)
+{
+    if (!pControl)
+        return;
+
+    // 获取控件的用户自定义数据（userData）
+    // DuiLib 支持通过 SetUserData/GetUserData 存储自定义字符串
+    CDuiString relatedControlName = pControl->GetUserData();
+    
+    if (relatedControlName.IsEmpty())
+        return;
+
+    // 查找关联的控件
+    CControlUI* pRelatedControl = m_pm.FindControl(relatedControlName);
+    if (!pRelatedControl)
+        return;
+
+    // 尝试将关联控件转换为 CheckBox
+    CCheckBoxUI* pCheckBox = dynamic_cast<CCheckBoxUI*>(pRelatedControl);
+    if (pCheckBox)
+    {
+        // 切换 CheckBox 的选中状态
+        pCheckBox->Selected(!pCheckBox->IsSelected());
+        
+        // 触发 selectchanged 事件，让原有的业务逻辑继续工作
+        m_pm.SendNotify(pCheckBox, DUI_MSGTYPE_SELECTCHANGED);
+    }
+    else
+    {
+        // 如果是 Option，也可以类似处理
+        COptionUI* pOption = dynamic_cast<COptionUI*>(pRelatedControl);
+        if (pOption)
+        {
+            pOption->Selected(!pOption->IsSelected());
+            m_pm.SendNotify(pOption, DUI_MSGTYPE_SELECTCHANGED);
         }
     }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Res>
   <Text id="uninstaller_title" value="Uninstaller" />
-  <Text id="uninstall_title" value="Are you sure you want to uninstall?" />
-  <Text id="reason_label" value="Please tell us why you're uninstalling:" />
+  <Text id="welcome_text" value="Invox Setup" />
+  <Text id="reason_label" value="why you're uninstalling:" />
   <Text id="reason1_text" value="Don't need it anymore" />
   <Text id="reason2_text" value="Installation failed" />
   <Text id="reason3_text" value="Other" />

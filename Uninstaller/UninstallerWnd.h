@@ -22,21 +22,25 @@ public:
     virtual LPCTSTR QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType);
 
 protected:
-    // 界面控件 - 第一页
+    // 界面控件 - 第一页（反馈页面）
     COptionUI* m_pReasonOption1;
     COptionUI* m_pReasonOption2;
     COptionUI* m_pReasonOption3;
     CRichEditUI* m_pFeedbackEdit;
     CButtonUI* m_pUninstallBtn;
     
-    // 界面控件 - 第二页
+    // 界面控件 - 第二页（卸载进度页面）
     CProgressUI* m_pProgress;
     CLabelUI* m_pProgressText;
+    
+    // 界面控件 - 第三页（卸载完成页面）
     CLabelUI* m_pCompleteText;
     CButtonUI* m_pGoodbyeBtn;
     
+    // 页面容器
     CContainerUI* m_pPage1;
     CContainerUI* m_pPage2;
+    CContainerUI* m_pPage3;
 
 private:
     // 切换页面
@@ -60,6 +64,9 @@ private:
     
     // 自删除卸载程序
     void SelfDelete();
+    
+    // 通用方法：处理关联控件的点击事件
+    void HandleRelatedControlClick(CControlUI* pControl);
 
 private:
     std::wstring m_strInstallPath;

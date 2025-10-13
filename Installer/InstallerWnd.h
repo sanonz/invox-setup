@@ -22,21 +22,34 @@ public:
     virtual LPCTSTR QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType);
 
 protected:
-    // 界面控件
-    CCheckBoxUI* m_pAgreeCheck;
-    CCheckBoxUI* m_pCustomCheck;
-    CCheckBoxUI* m_pDesktopCheck;
-    CButtonUI* m_pInstallBtn;
-    CButtonUI* m_pBrowseBtn;
-    CEditUI* m_pPathEdit;
-    CVerticalLayoutUI* m_pCustomLayout;
+    // 标题栏
+    CContainerUI* m_pTitleBar;
     
-    CProgressUI* m_pProgress;
-    CLabelUI* m_pProgressText;
-    CButtonUI* m_pLaunchBtn;
-    
+    // 页面容器
     CContainerUI* m_pPage1;
     CContainerUI* m_pPage2;
+    CContainerUI* m_pPage3;
+    CContainerUI* m_pPage4;
+    
+    // 界面控件 - 第一页（快速安装）
+    CCheckBoxUI* m_pAgreeCheck;
+    CButtonUI* m_pInstallBtn;
+    CButtonUI* m_pSwitchCustomBtn;
+    
+    // 界面控件 - 第二页（自定义安装）
+    CCheckBoxUI* m_pAgreeCheckCustom;
+    CCheckBoxUI* m_pDesktopCheck;
+    CButtonUI* m_pCustomInstallBtn;
+    CButtonUI* m_pBrowseBtn;
+    CEditUI* m_pPathEdit;
+    CButtonUI* m_pSwitchQuickBtn;
+    
+    // 界面控件 - 第三页（安装进度）
+    CProgressUI* m_pProgress;
+    CLabelUI* m_pProgressText;
+    
+    // 界面控件 - 第四页（安装完成）
+    CButtonUI* m_pLaunchBtn;
 
 private:
     // 切换页面
@@ -60,6 +73,9 @@ private:
     
     // 启动应用
     void LaunchApplication();
+
+    // 通用方法：处理关联控件的点击事件
+    void HandleRelatedControlClick(CControlUI* pControl);
 
 private:
     std::wstring m_strInstallPath;

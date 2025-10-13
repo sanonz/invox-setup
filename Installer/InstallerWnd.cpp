@@ -12,17 +12,21 @@
 
 CInstallerWnd::CInstallerWnd()
     : m_pAgreeCheck(NULL)
-    , m_pCustomCheck(NULL)
+    , m_pAgreeCheckCustom(NULL)
     , m_pDesktopCheck(NULL)
     , m_pInstallBtn(NULL)
+    , m_pCustomInstallBtn(NULL)
     , m_pBrowseBtn(NULL)
     , m_pPathEdit(NULL)
-    , m_pCustomLayout(NULL)
+    , m_pSwitchCustomBtn(NULL)
+    , m_pSwitchQuickBtn(NULL)
     , m_pProgress(NULL)
     , m_pProgressText(NULL)
     , m_pLaunchBtn(NULL)
     , m_pPage1(NULL)
     , m_pPage2(NULL)
+    , m_pPage3(NULL)
+    , m_pPage4(NULL)
     , m_hInstallThread(NULL)
     , m_bInstalling(false)
     , m_totalBytes(0)
@@ -69,20 +73,37 @@ LRESULT CInstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 void CInstallerWnd::InitWindow()
 {
-    // 获取控件
+    // 获取系统 DPI
+    int sysDPI =  GetDeviceCaps(m_pm.GetPaintDC(), LOGPIXELSX);
+    m_pm.SetAllDPI(sysDPI);
+    
+    // 获取标题栏
+    m_pTitleBar = static_cast<CContainerUI*>(m_pm.FindControl(_T("titlebar")));
+    
+    // 获取页面控件
     m_pPage1 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page1")));
     m_pPage2 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page2")));
+    m_pPage3 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page3")));
+    m_pPage4 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page4")));
     
+    // 获取第一页（快速安装）控件
     m_pAgreeCheck = static_cast<CCheckBoxUI*>(m_pm.FindControl(_T("agree_check")));
-    m_pCustomCheck = static_cast<CCheckBoxUI*>(m_pm.FindControl(_T("custom_check")));
+    m_pInstallBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("quick_install_btn")));
+    m_pSwitchCustomBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("switch_custom_btn")));
+    
+    // 获取第二页（自定义安装）控件
+    m_pAgreeCheckCustom = static_cast<CCheckBoxUI*>(m_pm.FindControl(_T("agree_check_custom")));
     m_pDesktopCheck = static_cast<CCheckBoxUI*>(m_pm.FindControl(_T("desktop_check")));
-    m_pInstallBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("install_btn")));
+    m_pCustomInstallBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("custom_install_btn")));
     m_pBrowseBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("browse_btn")));
     m_pPathEdit = static_cast<CEditUI*>(m_pm.FindControl(_T("path_edit")));
-    m_pCustomLayout = static_cast<CVerticalLayoutUI*>(m_pm.FindControl(_T("custom_layout")));
+    m_pSwitchQuickBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("switch_quick_btn")));
     
+    // 获取第三页（安装进度）控件
     m_pProgress = static_cast<CProgressUI*>(m_pm.FindControl(_T("install_progress")));
     m_pProgressText = static_cast<CLabelUI*>(m_pm.FindControl(_T("progress_text")));
+    
+    // 获取第四页（安装完成）控件
     m_pLaunchBtn = static_cast<CButtonUI*>(m_pm.FindControl(_T("launch_btn")));
     
     // 初始化控件状态
@@ -91,19 +112,14 @@ void CInstallerWnd::InitWindow()
         m_pPathEdit->SetText(m_strInstallPath.c_str());
     }
     
-    if (m_pCustomLayout)
-    {
-        m_pCustomLayout->SetVisible(false);
-    }
-    
     if (m_pInstallBtn)
     {
         m_pInstallBtn->SetEnabled(false);
     }
     
-    if (m_pLaunchBtn)
+    if (m_pCustomInstallBtn)
     {
-        m_pLaunchBtn->SetVisible(false);
+        m_pCustomInstallBtn->SetEnabled(false);
     }
     
     if (m_pDesktopCheck)
@@ -111,7 +127,7 @@ void CInstallerWnd::InitWindow()
         m_pDesktopCheck->Selected(true);
     }
 
-    // 显示第一页
+    // 显示第一页（快速安装页面）
     SwitchToPage(1);
     
     // 设置分析端点
@@ -149,18 +165,27 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         {
             SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
         }
-        else if (strName == _T("agreement_link"))
+        else if (strName == _T("agreement_link") || strName == _T("agreement_link_custom"))
         {
             // 打开协议链接
             ShellExecute(NULL, _T("open"), AGREEMENT_URL, NULL, NULL, SW_SHOW);
+        }
+        else if (strName == _T("switch_custom_btn"))
+        {
+            // 切换到自定义安装页面
+            SwitchToPage(2);
+        }
+        else if (strName == _T("switch_quick_btn"))
+        {
+            // 切换到快速安装页面
+            SwitchToPage(1);
         }
         else if (strName == _T("browse_btn"))
         {
             BrowseInstallPath();
         }
-        else if (strName == _T("install_btn"))
+        else if (strName == _T("quick_install_btn") || strName == _T("custom_install_btn"))
         {
-            OutputDebugString(_T("Install button clicked\n"));
             StartInstall();
         }
         else if (strName == _T("launch_btn"))
@@ -168,25 +193,38 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
             LaunchApplication();
             Close();
         }
+        else
+        {
+            // 通用处理：检查是否有关联控件
+            HandleRelatedControlClick(msg.pSender);
+        }
     }
     else if (msg.sType == _T("selectchanged"))
     {
         CDuiString strName = msg.pSender->GetName();
         
-        if (strName == _T("agree_check"))
+        if (strName == _T("agree_check") || strName == _T("agree_check_custom"))
         {
-            // 协议勾选状态改变
-            if (m_pAgreeCheck && m_pInstallBtn)
+            CCheckBoxUI* pCheckBox = dynamic_cast<CCheckBoxUI*>(msg.pSender);
+            
+            // 协议勾选状态改变（快速安装页面）
+            if (pCheckBox && m_pInstallBtn)
             {
-                m_pInstallBtn->SetEnabled(m_pAgreeCheck->IsSelected());
+                m_pInstallBtn->SetEnabled(pCheckBox->IsSelected());
             }
-        }
-        else if (strName == _T("custom_check"))
-        {
-            // 自定义安装勾选状态改变
-            if (m_pCustomCheck && m_pCustomLayout)
+            if (m_pAgreeCheck)
             {
-                m_pCustomLayout->SetVisible(m_pCustomCheck->IsSelected());
+                m_pAgreeCheck->SetCheck(pCheckBox->IsSelected());
+            }
+            
+            // 协议勾选状态改变（自定义安装页面）
+            if (pCheckBox && m_pCustomInstallBtn)
+            {
+                m_pCustomInstallBtn->SetEnabled(pCheckBox->IsSelected());
+            }
+            if (m_pAgreeCheckCustom)
+            {
+                m_pAgreeCheckCustom->SetCheck(pCheckBox->IsSelected());
             }
         }
     }
@@ -230,20 +268,8 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         
         if (success)
         {
-            if (m_pProgress)
-            {
-                m_pProgress->SetVisible(false);
-            }
-            
-            if (m_pProgressText)
-            {
-                m_pProgressText->SetVisible(false);
-            }
-            
-            if (m_pLaunchBtn)
-            {
-                m_pLaunchBtn->SetVisible(true);
-            }
+            // 切换到安装完成页面（第4页）
+            SwitchToPage(4);
         }
         else
         {
@@ -268,6 +294,20 @@ void CInstallerWnd::SwitchToPage(int pageIndex)
     if (m_pPage2)
     {
         m_pPage2->SetVisible(pageIndex == 2);
+    }
+    
+    if (m_pPage3)
+    {
+        m_pPage3->SetVisible(pageIndex == 3);
+    }
+    
+    if (m_pPage4)
+    {
+        m_pPage4->SetVisible(pageIndex == 4);
+    }
+
+    if (m_pTitleBar) {
+        m_pTitleBar->SetBkColor(pageIndex == 2 ? 0xFFFB2C36 : 0x00000000);
     }
 }
 
@@ -301,8 +341,8 @@ void CInstallerWnd::StartInstall()
     // 确保路径以应用名称结尾
     m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
     
-    // 切换到安装页面
-    SwitchToPage(2);
+    // 切换到安装进度页面（第3页）
+    SwitchToPage(3);
     
     // 启动安装线程
     m_bInstalling = true;
@@ -486,4 +526,43 @@ void CInstallerWnd::LaunchApplication()
 {
     std::wstring exePath = m_strInstallPath + L"\\" + APP_EXE_NAME;
     ShellExecute(NULL, _T("open"), exePath.c_str(), NULL, m_strInstallPath.c_str(), SW_SHOW);
+}
+
+void CInstallerWnd::HandleRelatedControlClick(CControlUI* pControl)
+{
+    if (!pControl)
+        return;
+
+    // 获取控件的用户自定义数据（userData）
+    // DuiLib 支持通过 SetUserData/GetUserData 存储自定义字符串
+    CDuiString relatedControlName = pControl->GetUserData();
+    
+    if (relatedControlName.IsEmpty())
+        return;
+
+    // 查找关联的控件
+    CControlUI* pRelatedControl = m_pm.FindControl(relatedControlName);
+    if (!pRelatedControl)
+        return;
+
+    // 尝试将关联控件转换为 CheckBox
+    CCheckBoxUI* pCheckBox = dynamic_cast<CCheckBoxUI*>(pRelatedControl);
+    if (pCheckBox)
+    {
+        // 切换 CheckBox 的选中状态
+        pCheckBox->Selected(!pCheckBox->IsSelected());
+        
+        // 触发 selectchanged 事件，让原有的业务逻辑继续工作
+        m_pm.SendNotify(pCheckBox, DUI_MSGTYPE_SELECTCHANGED);
+    }
+    else
+    {
+        // 如果是 Option，也可以类似处理
+        COptionUI* pOption = dynamic_cast<COptionUI*>(pRelatedControl);
+        if (pOption)
+        {
+            pOption->Selected(!pOption->IsSelected());
+            m_pm.SendNotify(pOption, DUI_MSGTYPE_SELECTCHANGED);
+        }
+    }
 }
