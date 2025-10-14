@@ -8,19 +8,25 @@
 - **国际化**：支持中英文等多语言切换
 - **用户友好**：提供进度显示、协议确认、路径选择等完整安装体验
 
+## 界面预览
+
+| 快速安装 | 自定义安装 | 卸载界面 |
+|:---:|:---:|:---:|
+| ![快速安装](preview/quick.png) | ![自定义安装](preview/custom.png) | ![卸载界面](preview/uninstall.png) |
+
 ## 配置说明
 
 ### 修改应用配置 (Config.h)
 
 ```cpp
-#define APP_NAME        L"MyApplication"      // 应用名称
-#define APP_VERSION     L"1.0.0"              // 应用版本
-#define APP_PUBLISHER   L"YourCompany"        // 发布者
-#define APP_EXE_NAME    L"MyApplication.exe"  // 主程序名
-#define APP_UNINSTALL_NAME L"Uninstaller.exe" // 卸载程序名
-#define APP_ARCHIVE     L"app.7z"             // 安装包文件名
-#define AGREEMENT_URL   L"https://..."        // 协议地址
-#define ANALYTICS_ENDPOINT L"https://..."     // 分析 API 端点
+#define APP_NAME           L"InvvoxApplication"     // 应用名称
+#define APP_VERSION        L"1.0.0"                 // 应用版本
+#define APP_PUBLISHER      L"YourCompany"           // 发布者
+#define APP_EXE_NAME       L"InvvoxApplication.exe" // 主程序名
+#define APP_UNINSTALL_NAME L"Uninstaller.exe"       // 卸载程序名
+#define APP_ARCHIVE        L"app.7z"                // 安装包文件名
+#define AGREEMENT_URL      L"https://..."           // 协议地址
+#define ANALYTICS_ENDPOINT L"https://..."           // 分析 API 端点
 ```
 
 ### 准备安装包
@@ -29,6 +35,12 @@
 2. 确保卸载程序 `Uninstall.exe` 包含在 `app.7z` 压缩包根目录中
 3. 把 `Installer/Res/*` 中资源压缩为 `Installer/Res/resources.zip`
 4. 把 `Uninstaller/Res/*` 中资源压缩为 `Uninstaller/Res/resources.zip`
+
+#### 压缩如下资源 (resources.zip)
+
+ - `Res/images/*`
+ - `Res/resources/*`
+ - `Res/installer.xml` / `Res/uninstaller.xml`
 
 ### 国际化配置
 
@@ -104,9 +116,9 @@ CAnalytics::GetInstance()->ReportInstall(
 ```json
 {
   "event_type": "install",
-  "app_name": "MyApplication",
+  "app_name": "InvvoxApplication",
   "version": "1.0.0",
-  "install_path": "C:\\Program Files\\MyApplication",
+  "install_path": "C:\\Program Files\\InvvoxApplication",
   "os_version": "Windows 10.0",
   "timestamp": "2025-10-11 12:30:45"
 }
@@ -126,7 +138,7 @@ CAnalytics::GetInstance()->ReportUninstall(
 ```json
 {
   "event_type": "uninstall",
-  "app_name": "MyApplication",
+  "app_name": "InvvoxApplication",
   "reason": "不需要了",
   "feedback": "功能不符合需求",
   "timestamp": "2025-10-11 12:35:20"
