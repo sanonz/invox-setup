@@ -443,7 +443,6 @@ void CInstallerWnd::DoInstall()
         }
         
         WCHAR szTempPath[MAX_PATH] = { 0 };
-        std::wstring tempDir;
         std::wstring str7zDllPath;
 
 #if defined(_DEBUG)
@@ -452,12 +451,12 @@ void CInstallerWnd::DoInstall()
         PathRemoveFileSpec(szTempPath);
         
         // 构建压缩包路径
-        tempDir = szTempPath;
-        tempDir += L"\\";
-        tempDir += APP_ARCHIVE;
+        m_tempDir = szTempPath;
+        m_tempDir += L"\\";
+        m_tempDir += APP_ARCHIVE;
 
         // 检查压缩包是否存在
-        if (!PathFileExists(tempDir.c_str()))
+        if (!PathFileExists(m_tempDir.c_str()))
         {
             UpdateProgress(0, L"找不到安装包文件！");
             Sleep(2000);
@@ -465,15 +464,15 @@ void CInstallerWnd::DoInstall()
             return;
         }
         
-        m_archivePath = tempDir;
+        m_archivePath = m_tempDir;
 
         // 构建 7zxa.dll 路径
-        tempDir = szTempPath;
-        tempDir = tempDir.substr(0, tempDir.length() - 3);
-        tempDir += L"3rd\\7zxa.dll";
+        m_tempDir = szTempPath;
+        m_tempDir = m_tempDir.substr(0, m_tempDir.length() - 3);
+        m_tempDir += L"3rd\\7zxa.dll";
 
         // 检查 7zxa.dll 是否存在
-        if (!PathFileExists(tempDir.c_str()))
+        if (!PathFileExists(m_tempDir.c_str()))
         {
             UpdateProgress(0, L"找不到 7zxa.dll 文件！");
             Sleep(2000);
@@ -481,7 +480,7 @@ void CInstallerWnd::DoInstall()
             return;
         }
 
-        str7zDllPath = tempDir;
+        str7zDllPath = m_tempDir;
 #else
         // 创建临时目录
         GetTempPath(MAX_PATH, szTempPath);
@@ -782,6 +781,7 @@ void CInstallerWnd::RollbackInstallation()
         CInstallHelper::RemoveDirectory(m_strInstallPath);
     }
     
+#if !defined(_DEBUG)
     // 删除临时文件
     if (m_currentStep >= STEP_ARCHIVE_EXTRACTED)
     {
@@ -800,6 +800,7 @@ void CInstallerWnd::RollbackInstallation()
             RemoveDirectory(m_tempDir.c_str());
         }
     }
+#endif    // _DEBUG
     
     CLogger::GetInstance()->LogInfo(L"Rollback completed");
     
