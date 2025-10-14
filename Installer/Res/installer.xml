@@ -18,7 +18,7 @@
 	<Default name="CheckBox" value="width=&quot;16&quot; height=&quot;16&quot; bkcolor=&quot;#0CFFFFFF&quot; selectedbkcolor=&quot;#FFE43B3DK&quot; selectedimage=&quot;images\tick.png&quot; bordercolor=&quot;#26FFFFFF&quot; bordersize=&quot;1&quot; borderround=&quot;4,4&quot; cursor=&quot;hand&quot;" />
 	<Default name="RichEdit" value="height=&quot;80&quot; multiline=&quot;true&quot; vscrollbar=&quot;true&quot; textpadding=&quot;5,5,5,5&quot; font=&quot;0&quot; textcolor=&quot;#FFFFFFFF&quot; nativetextcolor=&quot;#FFFFFFFF&quot; bkcolor=&quot;#0FFFFFFF&quot; nativebkcolor=&quot;#0FFFFFFF&quot; tipvaluecolor=&quot;#FFA1A1A1&quot; bordercolor=&quot;#1EFFFFFF&quot; bordersize=&quot;1&quot; borderround=&quot;5,5&quot; focusbordercolor=&quot;#3CFFFFFF&quot;" />
 	<Default name="Edit" value="height=&quot;36&quot; font=&quot;0&quot; textcolor=&quot;#FFFFFFFF&quot; nativetextcolor=&quot;#FFFFFFFF&quot; bkcolor=&quot;#0FFFFFFF&quot; nativebkcolor=&quot;#0FFFFFFF&quot; tipvaluecolor=&quot;#FFA1A1A1&quot; bordercolor=&quot;#1EFFFFFF&quot; bordersize=&quot;1&quot; borderround=&quot;5,5&quot; focusbordercolor=&quot;#3CFFFFFF&quot;" />
-	<Default name="Progress" value="height=&quot;8&quot; bkcolor=&quot;#4EE5E5E5&quot; forecolor=&quot;#FFFB2C36&quot; borderround=&quot;8,8&quot;" />
+	<Default name="Progress" value="height=&quot;8&quot; bkcolor=&quot;#4EE5E5E5&quot; forecolor=&quot;#FFFB2C36&quot; borderround=&quot;3,3&quot;" />
 	<Default name="VScrollBar" shared="true" value="width=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot; thumbnormalimage=&quot;file='images\vscrollbar.png' source='0,60,8,100' corner='0,4,0,4'&quot; thumbhotimage=&quot;file='images\vscrollbar.png' source='8,60,16,100' corner='0,4,0,4'&quot; thumbpushedimage=&quot;file='images\vscrollbar.png' source='16,60,24,100' corner='0,4,0,4'&quot; railnormalimage=&quot;&quot; railhotimage=&quot;&quot; railpushedimage=&quot;&quot; raildisabledimage=&quot;&quot; bknormalimage=&quot;file='images\vscrollbar.png' source='0,0,8,60' corner='0,4,0,4'&quot; bkhotimage=&quot;&quot; bkpushedimage=&quot;&quot; bkdisabledimage=&quot;&quot; " />
 	<Default name="HScrollBar" shared="true" value="height=&quot;8&quot; showbutton1=&quot;false&quot; showbutton2=&quot;false&quot; thumbnormalimage=&quot;file='images\hscrollbar.png' source='0,0,32,8' corner='4,0,4,0'&quot; thumbhotimage=&quot;file='images\hscrollbar.png' source='0,8,32,16' corner='4,0,4,0'&quot; thumbpushedimage=&quot;file='images\hscrollbar.png' source='0,16,32,24' corner='4,0,4,0'&quot; railnormalimage=&quot;&quot; railhotimage=&quot;&quot; railpushedimage=&quot;&quot; raildisabledimage=&quot;&quot; bknormalimage=&quot;file='images\hscrollbar.png' source='0,0,32,8' corner='4,0,4,0'&quot; bkhotimage=&quot;&quot; bkpushedimage=&quot;&quot; bkdisabledimage=&quot;&quot; " />
 	<Style name="text_primary" value="textcolor=&quot;#FFD4D4D4&quot;" />
@@ -105,7 +105,7 @@
 		<VerticalLayout name="page4" visible="false">
 			<!--	立即打开按钮	-->
 			<VerticalLayout childalign="center" childvalign="vcenter" padding="0,0,0,36">
-				<Button width="120" height="120" normalimage="images\success.png" />
+				<Control width="120" height="120" bkimage="images\success.png" />
 				<Button name="launch_btn" text="launch_now" resourcetext="true" width="200" height="40" padding="0,40,0,0" style="btn_primary" />
 			</VerticalLayout>
 		</VerticalLayout>
