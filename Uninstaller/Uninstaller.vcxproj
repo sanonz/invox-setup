@@ -255,12 +255,16 @@
     <ClInclude Include="..\Common\Config.h" />
     <ClInclude Include="..\Common\Analytics.h" />
     <ClInclude Include="..\Common\InstallHelper.h" />
+    <ClInclude Include="..\Common\Logger.h" />
     <ClInclude Include="UninstallerWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Common\Analytics.cpp" />
     <ClCompile Include="..\Common\InstallHelper.cpp" />
+    <ClCompile Include="..\Common\Logger.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="UninstallerWnd.cpp" />
     <ClCompile Include="Uninstaller.cpp" />
     <ClCompile Include="StdAfx.cpp">

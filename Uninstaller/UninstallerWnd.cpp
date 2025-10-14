@@ -3,6 +3,7 @@
 #include "..\Common\Config.h"
 #include "..\Common\InstallHelper.h"
 #include "..\Common\Analytics.h"
+#include "..\Common\Logger.h"
 #include <shlobj.h>
 
 #define WM_UNINSTALL_PROGRESS (WM_USER + 100)
@@ -64,7 +65,7 @@ CDuiString CUninstallerWnd::GetSkinFile()
 
 LPCTSTR CUninstallerWnd::GetWindowClassName() const
 {
-    return _T("UninstallerWindow");
+    return _T("InvoxUninstallerWindow");
 }
 
 LRESULT CUninstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -134,11 +135,39 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bUninstalling)
             {
-                if (MessageBox(m_hWnd, _T("卸载正在进行中，确定要退出吗？"), 
-                    _T("提示"), MB_YESNO | MB_ICONQUESTION) != IDYES)
+                if (MessageBox(m_hWnd, 
+                    _T("卸载正在进行中，确定要退出吗？\n\n警告：强制退出可能导致：\n")
+                    _T("• 部分文件未完全删除\n")
+                    _T("• 注册表残留\n")
+                    _T("• 快捷方式未清理\n\n")
+                    _T("建议等待卸载完成。是否仍要退出？"), 
+                    _T("警告"), MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES)
                 {
                     return;
                 }
+                
+                // 用户确认强制退出
+                CLogger::GetInstance()->LogWarning(L"User clicked close button during uninstallation, force exit");
+                CLogger::GetInstance()->LogWarning(L"Uninstallation may not be fully completed, residual files or registry entries may exist");
+                
+                // 如果卸载线程还在运行，等待其结束（最多等待2秒）
+                if (m_hUninstallThread)
+                {
+                    // 设置标志让卸载线程知道需要停止
+                    m_bUninstalling = false;
+                    
+                    // 等待线程结束
+                    DWORD dwWaitResult = WaitForSingleObject(m_hUninstallThread, 2000);
+                    if (dwWaitResult == WAIT_TIMEOUT)
+                    {
+                        CLogger::GetInstance()->LogWarning(L"Uninstall thread did not respond in time, force terminating");
+                        TerminateThread(m_hUninstallThread, 0);
+                    }
+                    CloseHandle(m_hUninstallThread);
+                    m_hUninstallThread = NULL;
+                }
+                
+                CLogger::GetInstance()->LogInfo(L"Program will exit");
             }
             Close();
         }
@@ -248,14 +277,48 @@ void CUninstallerWnd::DoUninstall()
     
     try
     {
+        // 初始化日志
+        std::wstring logPath = m_strInstallPath + L"\\uninstall.log";
+        CLogger::GetInstance()->SetLogFile(logPath);
+        CLogger::GetInstance()->LogInfo(L"========== Uninstallation Started ==========");
+        CLogger::GetInstance()->LogFormat(LOG_INFO, L"Uninstall Path: %s", m_strInstallPath.c_str());
+        CLogger::GetInstance()->LogFormat(LOG_INFO, L"Uninstall Reason: %s", m_strReason.c_str());
+        
         // 更新进度：开始卸载
         UpdateProgress(0, L"正在准备卸载...");
         Sleep(500);
+        
+        // 检查目标程序是否正在运行
+        if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
+        {
+            CLogger::GetInstance()->LogWarning(L"Target application is running, attempting to close");
+            UpdateProgress(0, L"检测到应用程序正在运行，正在尝试关闭...");
+            
+            if (!CInstallHelper::KillProcess(APP_EXE_NAME, 5000))
+            {
+                CLogger::GetInstance()->LogError(L"Failed to close application");
+                UpdateProgress(0, L"无法关闭应用程序，请手动关闭后重试！");
+                Sleep(3000);
+                ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, FALSE, 0);
+                return;
+            }
+            
+            CLogger::GetInstance()->LogInfo(L"Application closed successfully");
+            Sleep(1000);
+        }
         
         // 上报卸载信息
         UpdateProgress(5, L"正在上报卸载信息...");
         CAnalytics::GetInstance()->ReportUninstall(APP_NAME, m_strReason, m_strFeedback);
         Sleep(300);
+        
+        // 检查是否需要中止
+        if (!m_bUninstalling)
+        {
+            CLogger::GetInstance()->LogWarning(L"Uninstallation aborted by user");
+            ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, FALSE, 0);
+            return;
+        }
         
         // 计算文件总大小
         UpdateProgress(10, L"正在计算文件大小...");
@@ -270,7 +333,14 @@ void CUninstallerWnd::DoUninstall()
         shortcutPath += L"\\";
         shortcutPath += APP_NAME;
         shortcutPath += L".lnk";
-        DeleteFile(shortcutPath.c_str());
+        if (DeleteFile(shortcutPath.c_str()))
+        {
+            CLogger::GetInstance()->LogInfo(L"Desktop shortcut deleted successfully");
+        }
+        else
+        {
+            CLogger::GetInstance()->LogWarning(L"Desktop shortcut does not exist or failed to delete");
+        }
         Sleep(300);
         
         // 删除安装文件
@@ -314,27 +384,57 @@ void CUninstallerWnd::DoUninstall()
         }
         
         UpdateProgress(85, L"文件删除完成");
+        CLogger::GetInstance()->LogInfo(L"Application files deleted successfully");
         Sleep(300);
+        
+        // 检查是否需要中止
+        if (!m_bUninstalling)
+        {
+            CLogger::GetInstance()->LogWarning(L"Uninstallation aborted by user (files already deleted)");
+            ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, FALSE, 0);
+            return;
+        }
         
         // 删除开始菜单快捷方式
         UpdateProgress(87, L"正在清理开始菜单快捷方式...");
-        CInstallHelper::RemoveStartMenuShortcut(APP_NAME);
+        if (CInstallHelper::RemoveStartMenuShortcut(APP_NAME))
+        {
+            CLogger::GetInstance()->LogInfo(L"Start menu shortcut deleted successfully");
+        }
+        else
+        {
+            CLogger::GetInstance()->LogWarning(L"Failed to delete start menu shortcut");
+        }
         Sleep(300);
         
         // 删除注册表
         UpdateProgress(90, L"正在清理注册表...");
-        CInstallHelper::RemoveUninstallRegistry(APP_NAME);
+        if (CInstallHelper::RemoveUninstallRegistry(APP_NAME))
+        {
+            CLogger::GetInstance()->LogInfo(L"Registry cleaned up successfully");
+        }
+        else
+        {
+            CLogger::GetInstance()->LogWarning(L"Failed to clean up registry");
+        }
         Sleep(300);
         
         // 卸载完成
         UpdateProgress(100, L"卸载完成！");
+        CLogger::GetInstance()->LogInfo(L"Uninstallation completed successfully");
         Sleep(500);
         
         success = true;
     }
     catch (...)
     {
+        CLogger::GetInstance()->LogError(L"Exception occurred during uninstallation");
         success = false;
+    }
+    
+    if (!success)
+    {
+        CLogger::GetInstance()->LogError(L"Uninstallation failed");
     }
     
     ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, success, 0);

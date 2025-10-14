@@ -258,6 +258,7 @@
     <ClInclude Include="..\Common\Config.h" />
     <ClInclude Include="..\Common\Analytics.h" />
     <ClInclude Include="..\Common\InstallHelper.h" />
+    <ClInclude Include="..\Common\Logger.h" />
     <ClInclude Include="7zTypes.h" />
     <ClInclude Include="7zExtractor.h" />
     <ClInclude Include="7zStreamHelpers.h" />
@@ -267,6 +268,9 @@
   <ItemGroup>
     <ClCompile Include="..\Common\Analytics.cpp" />
     <ClCompile Include="..\Common\InstallHelper.cpp" />
+    <ClCompile Include="..\Common\Logger.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="7zExtractor.cpp" />
     <ClCompile Include="7zStreamHelpers.cpp" />
     <ClCompile Include="InstallerWnd.cpp" />

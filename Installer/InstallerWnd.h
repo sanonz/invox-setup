@@ -76,11 +76,34 @@ private:
 
     // 通用方法：处理关联控件的点击事件
     void HandleRelatedControlClick(CControlUI* pControl);
+    
+    // 回滚机制
+    void RollbackInstallation();
+
+private:
+    // 安装步骤追踪
+    enum InstallStep {
+        STEP_NONE = 0,
+        STEP_TEMP_DIR_CREATED,
+        STEP_ARCHIVE_EXTRACTED,
+        STEP_INSTALL_DIR_CREATED,
+        STEP_FILES_EXTRACTED,
+        STEP_START_MENU_CREATED,
+        STEP_DESKTOP_SHORTCUT_CREATED,
+        STEP_REGISTRY_WRITTEN,
+        STEP_COMPLETED
+    };
+    
+    InstallStep m_currentStep;
+    std::wstring m_tempDir;
+    std::wstring m_archivePath;
+    bool m_startMenuCreated;
+    bool m_desktopShortcutCreated;
+    bool m_registryWritten;
 
 private:
     std::wstring m_strInstallPath;
     HANDLE m_hInstallThread;
     bool m_bInstalling;
     UINT64 m_totalBytes;
-    UINT64 m_processedBytes;
 };

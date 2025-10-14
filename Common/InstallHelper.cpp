@@ -5,13 +5,140 @@
 #include <shlwapi.h>
 #include <atlbase.h>
 #include <shobjidl.h>
+#include <TlHelp32.h>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "shell32.lib")
 
+CInstallHelper::InstallErrorCode CInstallHelper::PreInstallCheck(const std::wstring& installPath)
+{
+    // 检查路径长度
+    if (installPath.length() > MAX_PATH - 50) // 留一些余量给子文件
+    {
+        return INSTALL_ERR_PATH_TOO_LONG;
+    }
+    
+    // 检查路径格式（必须以驱动器字母开头，如 C:\）
+    if (installPath.length() < 3 || installPath[1] != L':' || installPath[2] != L'\\')
+    {
+        return INSTALL_ERR_INVALID_PATH;
+    }
+    
+    // 检查驱动器字母是否合法（A-Z 或 a-z）
+    wchar_t driveLetter = installPath[0];
+    if (!((driveLetter >= L'A' && driveLetter <= L'Z') || (driveLetter >= L'a' && driveLetter <= L'z')))
+    {
+        return INSTALL_ERR_INVALID_PATH;
+    }
+    
+    // 检查路径中是否包含非法字符（跳过驱动器部分 "C:\"）
+    // Windows 文件名不允许的字符：< > : " | ? *
+    // 注意：冒号只能出现在驱动器字母后（位置1），其他位置都是非法的
+    const wchar_t* invalidChars = L"<>:\"|?*";
+    for (size_t i = 3; i < installPath.length(); i++)  // 从第4个字符开始检查（跳过 "C:\"）
+    {
+        wchar_t ch = installPath[i];
+        for (size_t j = 0; j < wcslen(invalidChars); j++)
+        {
+            if (ch == invalidChars[j])
+            {
+                return INSTALL_ERR_INVALID_PATH;
+            }
+        }
+    }
+    
+    // 检查是否有写入权限（尝试创建临时文件）
+    std::wstring testPath = installPath;
+    // 确保路径存在
+    SHCreateDirectoryEx(NULL, testPath.c_str(), NULL);
+    
+    testPath += L"\\~test_write_permission.tmp";
+    HANDLE hFile = CreateFile(testPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        DWORD dwError = GetLastError();
+        if (dwError == ERROR_ACCESS_DENIED)
+        {
+            return INSTALL_ERR_INSUFFICIENT_PRIVILEGE;
+        }
+        return INSTALL_ERR_INVALID_PATH;
+    }
+    CloseHandle(hFile);
+    DeleteFile(testPath.c_str());
+    
+    return INSTALL_ERR_SUCCESS;
+}
+
+bool CInstallHelper::IsProcessRunning(const std::wstring& processName)
+{
+    bool bFound = false;
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    
+    if (hSnapshot != INVALID_HANDLE_VALUE)
+    {
+        PROCESSENTRY32 pe32 = { 0 };
+        pe32.dwSize = sizeof(PROCESSENTRY32);
+        
+        if (Process32First(hSnapshot, &pe32))
+        {
+            do
+            {
+                if (_wcsicmp(pe32.szExeFile, processName.c_str()) == 0)
+                {
+                    bFound = true;
+                    break;
+                }
+            } while (Process32Next(hSnapshot, &pe32));
+        }
+        
+        CloseHandle(hSnapshot);
+    }
+    
+    return bFound;
+}
+
+bool CInstallHelper::KillProcess(const std::wstring& processName, DWORD timeoutMs)
+{
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+        return false;
+    
+    PROCESSENTRY32 pe32 = { 0 };
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+    bool bKilled = false;
+    
+    if (Process32First(hSnapshot, &pe32))
+    {
+        do
+        {
+            if (_wcsicmp(pe32.szExeFile, processName.c_str()) == 0)
+            {
+                HANDLE hProcess = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE, FALSE, pe32.th32ProcessID);
+                if (hProcess)
+                {
+                    // 尝试优雅关闭
+                    if (TerminateProcess(hProcess, 0))
+                    {
+                        // 等待进程退出
+                        WaitForSingleObject(hProcess, timeoutMs);
+                        bKilled = true;
+                    }
+                    CloseHandle(hProcess);
+                }
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+    
+    CloseHandle(hSnapshot);
+    return bKilled;
+}
+
 bool CInstallHelper::CreateDesktopShortcut(const std::wstring& targetPath, const std::wstring& shortcutName)
 {
-    HRESULT hr = CoInitialize(NULL);
+    // 使用 CoInitializeEx 支持多线程，S_FALSE 表示 COM 已被初始化
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    bool bNeedUninit = SUCCEEDED(hr);
     
     // 获取桌面路径
     WCHAR szDesktopPath[MAX_PATH] = { 0 };
@@ -53,14 +180,20 @@ bool CInstallHelper::CreateDesktopShortcut(const std::wstring& targetPath, const
         pShellLink->Release();
     }
     
-    CoUninitialize();
+    // 只有我们自己初始化的 COM 才需要反初始化
+    if (bNeedUninit)
+    {
+        CoUninitialize();
+    }
     
     return SUCCEEDED(hr);
 }
 
 bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, const std::wstring& shortcutName, const std::wstring& folderName)
 {
-    HRESULT hr = CoInitialize(NULL);
+    // 使用 CoInitializeEx 支持多线程，S_FALSE 表示 COM 已被初始化
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    bool bNeedUninit = SUCCEEDED(hr);
     
     // 获取开始菜单程序文件夹路径
     WCHAR szStartMenuPath[MAX_PATH] = { 0 };
@@ -80,7 +213,21 @@ bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, con
     {
         shortcutPath += L"\\";
         shortcutPath += folderName;
-        CreateDirectory(shortcutPath.c_str(), NULL);
+        
+        // 检查目录是否创建成功
+        if (!CreateDirectory(shortcutPath.c_str(), NULL))
+        {
+            DWORD dwError = GetLastError();
+            // ERROR_ALREADY_EXISTS 是正常情况
+            if (dwError != ERROR_ALREADY_EXISTS)
+            {
+                if (bNeedUninit)
+                {
+                    CoUninitialize();
+                }
+                return false;
+            }
+        }
     }
     
     shortcutPath += L"\\";
@@ -120,7 +267,11 @@ bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, con
         pShellLink->Release();
     }
     
-    CoUninitialize();
+    // 只有我们自己初始化的 COM 才需要反初始化
+    if (bNeedUninit)
+    {
+        CoUninitialize();
+    }
     
     return SUCCEEDED(hr);
 }
@@ -393,6 +544,13 @@ bool CInstallHelper::ExtractBinaryResource(HINSTANCE hInstance, UINT resourceId,
         return false;
     }
 
+    // 获取资源大小
+    DWORD dwSize = ::SizeofResource(hInstance, hResource);
+    if (dwSize == 0)
+    {
+        return false;
+    }
+    
     // 加载资源
     HGLOBAL hGlobal = ::LoadResource(hInstance, hResource);
     if (hGlobal == NULL)
@@ -408,12 +566,18 @@ bool CInstallHelper::ExtractBinaryResource(HINSTANCE hInstance, UINT resourceId,
         return false;
     }
 
-    // 获取资源大小
-    DWORD dwSize = ::SizeofResource(hInstance, hResource);
-    if (dwSize == 0)
+    // 确保输出目录存在
+    std::wstring dirPath = outputPath;
+    size_t pos = dirPath.find_last_of(L"\\");
+    if (pos != std::wstring::npos)
     {
-        ::FreeResource(hGlobal);
-        return false;
+        dirPath = dirPath.substr(0, pos);
+        HRESULT hrDir = SHCreateDirectoryEx(NULL, dirPath.c_str(), NULL);
+        if (FAILED(hrDir) && hrDir != HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS))
+        {
+            ::FreeResource(hGlobal);
+            return false;
+        }
     }
 
     // 写入文件
@@ -430,4 +594,48 @@ bool CInstallHelper::ExtractBinaryResource(HINSTANCE hInstance, UINT resourceId,
     ::FreeResource(hGlobal);
 
     return bWriteSuccess && (dwWritten == dwSize);
+}
+
+std::wstring CInstallHelper::GetDrivePath(const std::wstring& installPath)
+{
+    // 获取驱动器根路径
+    std::wstring drivePath = installPath.substr(0, 3); // 如 "C:\"
+    if (drivePath.length() < 3 || drivePath[1] != L':' || drivePath[2] != L'\\')
+    {
+        return NULL;
+    }
+
+    return drivePath;
+}
+
+bool CInstallHelper::CheckDiskSpace(const std::wstring& drivePath, UINT64 requiredSize, UINT64 marginSize)
+{
+    ULARGE_INTEGER freeBytesAvailable, totalBytes, totalFreeBytes;
+    
+    // 获取磁盘空间信息
+    if (!GetDiskFreeSpaceEx(drivePath.c_str(), &freeBytesAvailable, &totalBytes, &totalFreeBytes))
+    {
+        // 获取失败，可能是无效的驱动器路径
+        return false;
+    }
+    
+    // 计算需要的总空间（包括余量）
+    UINT64 neededSpace = requiredSize + marginSize;
+    
+    // 检查可用空间是否足够
+    return freeBytesAvailable.QuadPart >= neededSpace;
+}
+
+UINT64 CInstallHelper::GetDiskFreeSpace(const std::wstring& drivePath)
+{
+    ULARGE_INTEGER freeBytesAvailable, totalBytes, totalFreeBytes;
+    
+    // 获取磁盘空间信息
+    if (GetDiskFreeSpaceEx(drivePath.c_str(), &freeBytesAvailable, &totalBytes, &totalFreeBytes))
+    {
+        return freeBytesAvailable.QuadPart;
+    }
+    
+    // 获取失败，返回 0
+    return 0;
 }

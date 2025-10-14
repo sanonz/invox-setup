@@ -1,11 +1,43 @@
 ﻿#pragma once
 #include <windows.h>
 #include <string>
+#include <TlHelp32.h>
 
 // 安装辅助函数
 class CInstallHelper
 {
 public:
+    // 错误代码
+    enum InstallErrorCode {
+        INSTALL_ERR_SUCCESS = 0,
+        INSTALL_ERR_INSUFFICIENT_PRIVILEGE,
+        INSTALL_ERR_PATH_TOO_LONG,
+        INSTALL_ERR_INVALID_PATH,
+        INSTALL_ERR_PATH_EXISTS,
+        INSTALL_ERR_PROCESS_RUNNING
+    };
+    
+    // 安装前检查
+    static InstallErrorCode PreInstallCheck(const std::wstring& installPath);
+
+    static std::wstring GetDrivePath(const std::wstring& installPath);
+    
+    // 检查磁盘空间是否足够
+    // drivePath: 驱动器路径，如 "C:\"
+    // requiredSize: 需要的空间大小（字节）
+    // marginSize: 额外的余量空间（字节），默认 1MB
+    // 返回: 成功返回 true，失败返回 false
+    static bool CheckDiskSpace(const std::wstring& drivePath, UINT64 requiredSize, UINT64 marginSize = 1ULL * 1024 * 1024);
+    
+    // 获取磁盘可用空间
+    // drivePath: 驱动器路径，如 "C:\"
+    // 返回: 可用空间大小（字节），失败返回 0
+    static UINT64 GetDiskFreeSpace(const std::wstring& drivePath);
+    
+    // 进程检查
+    static bool IsProcessRunning(const std::wstring& processName);
+    static bool KillProcess(const std::wstring& processName, DWORD timeoutMs = 5000);
+    
     // 创建桌面快捷方式
     static bool CreateDesktopShortcut(const std::wstring& targetPath, const std::wstring& shortcutName);
     
