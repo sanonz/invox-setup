@@ -50,7 +50,7 @@
 				<HorizontalLayout childvalign="vcenter">
 					<CheckBox name="agree_check" />
 					<Button name="agree_label" text="agree_prefix" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" padding="5,0,0,0" userdata="agree_check" />
-					<Button name="agreement_link" text="agreement_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />
+					<Button name="privacy_link" text="privacy_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />
 				</HorizontalLayout>
 				<Button name="switch_custom_btn" text="custom_install" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" />
 			</HorizontalLayout>
@@ -86,7 +86,7 @@
 				<HorizontalLayout childvalign="vcenter">
 					<CheckBox name="agree_check_custom" />
 					<Button name="agree_label_custom" text="agree_prefix" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" padding="5,0,0,0" userdata="agree_check_custom" />
-					<Button name="agreement_link_custom" text="agreement_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />
+					<Button name="privacy_link_custom" text="privacy_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />
 				</HorizontalLayout>
 				<Button name="switch_quick_btn" text="quick_install" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" cursor="hand" />
 			</HorizontalLayout>

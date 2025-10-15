@@ -168,8 +168,10 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bInstalling)
             {
-                if (MessageBox(m_hWnd, _T("安装正在进行中，确定要退出吗？\n退出后将回滚所有已安装的内容。"), 
-                    _T("提示"), MB_YESNO | MB_ICONWARNING) != IDYES)
+                std::wstring confirmMsg = GetLocalizedText(L"msgbox_confirm_exit_message");
+                std::wstring confirmTitle = GetLocalizedText(L"msgbox_confirm_exit_title");
+                if (MessageBox(m_hWnd, confirmMsg.c_str(), 
+                    confirmTitle.c_str(), MB_YESNO | MB_ICONWARNING) != IDYES)
                 {
                     return;
                 }
@@ -205,10 +207,10 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         {
             SendMessage(WM_SYSCOMMAND, SC_MINIMIZE, 0);
         }
-        else if (strName == _T("agreement_link") || strName == _T("agreement_link_custom"))
+        else if (strName == _T("privacy_link") || strName == _T("privacy_link_custom"))
         {
             // 打开协议链接
-            ShellExecute(NULL, _T("open"), AGREEMENT_URL, NULL, NULL, SW_SHOW);
+            ShellExecute(NULL, _T("open"), PRIVACY_URL, NULL, NULL, SW_SHOW);
         }
         else if (strName == _T("switch_custom_btn"))
         {
@@ -313,7 +315,9 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            MessageBox(m_hWnd, _T("安装失败！"), _T("错误"), MB_OK | MB_ICONERROR);
+            std::wstring failedMsg = GetLocalizedText(L"msgbox_install_failed_message");
+            std::wstring failedTitle = GetLocalizedText(L"msgbox_install_failed_title");
+            MessageBox(m_hWnd, failedMsg.c_str(), failedTitle.c_str(), MB_OK | MB_ICONERROR);
             Close();
         }
         
@@ -353,9 +357,10 @@ void CInstallerWnd::SwitchToPage(int pageIndex)
 
 void CInstallerWnd::BrowseInstallPath()
 {
+    std::wstring browseFolderTitle = GetLocalizedText(L"msgbox_browse_folder_title");
     BROWSEINFO bi = { 0 };
     bi.hwndOwner = m_hWnd;
-    bi.lpszTitle = _T("请选择安装目录");
+    bi.lpszTitle = browseFolderTitle.c_str();
     bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
     
     LPITEMIDLIST pidl = SHBrowseForFolder(&bi);

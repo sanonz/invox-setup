@@ -27,8 +27,8 @@
 // 注册表路径
 #define REG_UNINSTALL_PATH L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"
 
-// 协议 URL
-#define AGREEMENT_URL      L"https://yourcompany.com/agreement.html"
+// 隐私政策 URL
+#define PRIVACY_URL       L"https://yourcompany.com/privacy.html"
 
 // 分析上报 API
 #define ANALYTICS_ENDPOINT L"https://api.yourcompany.com/analytics"

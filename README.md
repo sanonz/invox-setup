@@ -25,7 +25,7 @@
 #define APP_EXE_NAME       L"InvvoxApplication.exe" // 主程序名
 #define APP_UNINSTALL_NAME L"Uninstaller.exe"       // 卸载程序名
 #define APP_ARCHIVE        L"app.7z"                // 安装包文件名
-#define AGREEMENT_URL      L"https://..."           // 协议地址
+#define PRIVACY_URL        L"https://..."           // 协议地址
 #define ANALYTICS_ENDPOINT L"https://..."           // 分析 API 端点
 ```
 
