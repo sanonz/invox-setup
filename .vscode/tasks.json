@@ -4,10 +4,7 @@
       "type": "shell",
       "label": "Build Setup",
       "command": "cmd",
-      "args": [
-        "/c",
-        "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\Build\\vcvars64.bat\" && msbuild Setup.sln /p:Configuration=Release /p:Platform=x64"
-      ],
+      "args": ["/c", "build-invox.bat"],
       "options": {
         "cwd": "${workspaceFolder}",
         "shell": {
