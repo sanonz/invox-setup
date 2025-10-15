@@ -1,4 +1,4 @@
-#include "Logger.h"
+﻿#include "Logger.h"
 #include <windows.h>
 #include <time.h>
 #include <stdarg.h>

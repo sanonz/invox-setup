@@ -150,7 +150,7 @@ bool CAnalytics::PostData(const std::wstring& url, const std::string& postData)
         
         // 发送请求
         bResult = HttpSendRequest(hRequest, headers.c_str(), -1,
-            (LPVOID)postData.c_str(), postData.length()) == TRUE;
+            (LPVOID)postData.c_str(), static_cast<DWORD>(postData.length())) == TRUE;
 
         // 清理
         InternetCloseHandle(hRequest);
@@ -197,7 +197,18 @@ bool CAnalytics::ReportInstall(const std::wstring& appName, const std::wstring& 
     // 获取系统信息
     OSVERSIONINFOEX osvi = { 0 };
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    GetVersionEx((LPOSVERSIONINFO)&osvi);
+    
+    // 使用 RtlGetVersion 替代已弃用的 GetVersionEx
+    typedef LONG(WINAPI* RtlGetVersionPtr)(PRTL_OSVERSIONINFOW);
+    HMODULE hMod = GetModuleHandleW(L"ntdll.dll");
+    if (hMod)
+    {
+        RtlGetVersionPtr pRtlGetVersion = (RtlGetVersionPtr)GetProcAddress(hMod, "RtlGetVersion");
+        if (pRtlGetVersion)
+        {
+            pRtlGetVersion((PRTL_OSVERSIONINFOW)&osvi);
+        }
+    }
     
     WCHAR szOSVersion[64] = { 0 };
     wsprintf(szOSVersion, L"Windows %d.%d", osvi.dwMajorVersion, osvi.dwMinorVersion);

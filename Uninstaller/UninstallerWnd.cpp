@@ -355,8 +355,8 @@ void CUninstallerWnd::DoUninstall()
         std::vector<std::wstring> filesToDelete;
         std::vector<std::wstring> dirsToDelete;
         CollectFilesAndDirectories(m_strInstallPath, filesToDelete, dirsToDelete);
-        
-        int totalItems = filesToDelete.size() + dirsToDelete.size();
+
+        int totalItems = static_cast<int>(filesToDelete.size() + dirsToDelete.size());
         int processedItems = 0;
         
         // 删除文件

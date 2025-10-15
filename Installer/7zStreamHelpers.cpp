@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 #include "7zStreamHelpers.h"
 #include <ShlObj.h>
 #include <shlwapi.h>

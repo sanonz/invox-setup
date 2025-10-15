@@ -301,30 +301,30 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     {
         // 写入显示名称
         RegSetValueEx(hKey, L"DisplayName", 0, REG_SZ, 
-            (BYTE*)appName.c_str(), (appName.length() + 1) * sizeof(WCHAR));
+            (BYTE*)appName.c_str(), static_cast<DWORD>((appName.length() + 1) * sizeof(WCHAR)));
         
         // 写入版本
         RegSetValueEx(hKey, L"DisplayVersion", 0, REG_SZ,
-            (BYTE*)version.c_str(), (version.length() + 1) * sizeof(WCHAR));
+            (BYTE*)version.c_str(), static_cast<DWORD>((version.length() + 1) * sizeof(WCHAR)));
         
         // 写入发布者
         RegSetValueEx(hKey, L"Publisher", 0, REG_SZ,
-            (BYTE*)publisher.c_str(), (publisher.length() + 1) * sizeof(WCHAR));
+            (BYTE*)publisher.c_str(), static_cast<DWORD>((publisher.length() + 1) * sizeof(WCHAR)));
         
         // 写入安装路径
         RegSetValueEx(hKey, L"InstallLocation", 0, REG_SZ,
-            (BYTE*)installPath.c_str(), (installPath.length() + 1) * sizeof(WCHAR));
+            (BYTE*)installPath.c_str(), static_cast<DWORD>((installPath.length() + 1) * sizeof(WCHAR)));
         
         // 写入卸载命令
         std::wstring uninstallCmd = L"\"" + uninstallPath + L"\"";
         RegSetValueEx(hKey, L"UninstallString", 0, REG_SZ,
-            (BYTE*)uninstallCmd.c_str(), (uninstallCmd.length() + 1) * sizeof(WCHAR));
+            (BYTE*)uninstallCmd.c_str(), static_cast<DWORD>((uninstallCmd.length() + 1) * sizeof(WCHAR)));
         
         // 写入应用图标路径
         if (!iconPath.empty())
         {
             RegSetValueEx(hKey, L"DisplayIcon", 0, REG_SZ,
-                (BYTE*)iconPath.c_str(), (iconPath.length() + 1) * sizeof(WCHAR));
+                (BYTE*)iconPath.c_str(), static_cast<DWORD>((iconPath.length() + 1) * sizeof(WCHAR)));
         }
         
         // 写入估计大小（KB）
