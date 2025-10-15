@@ -70,6 +70,11 @@ private:
     
     // 通用方法：处理关联控件的点击事件
     void HandleRelatedControlClick(CControlUI* pControl);
+    
+    // 收集需要删除的文件和目录
+    void CollectFilesAndDirectories(const std::wstring& rootPath, 
+                                     std::vector<std::wstring>& files, 
+                                     std::vector<std::wstring>& dirs);
 
 private:
     std::wstring m_strInstallPath;

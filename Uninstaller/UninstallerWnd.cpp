@@ -5,6 +5,7 @@
 #include "..\Common\Analytics.h"
 #include "..\Common\Logger.h"
 #include <shlobj.h>
+#include <vector>
 
 #define WM_UNINSTALL_PROGRESS (WM_USER + 100)
 #define WM_UNINSTALL_COMPLETE (WM_USER + 101)
@@ -329,13 +330,8 @@ void CUninstallerWnd::DoUninstall()
             return;
         }
         
-        // 计算文件总大小
-        UpdateProgress(10, L"progress_calculating_size");
-        UINT64 totalSize = CInstallHelper::GetDirectorySize(m_strInstallPath);
-        Sleep(300);
-        
         // 删除桌面快捷方式
-        UpdateProgress(20, L"progress_removing_shortcuts");
+        UpdateProgress(15, L"progress_removing_shortcuts");
         WCHAR szDesktopPath[MAX_PATH] = { 0 };
         SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szDesktopPath);
         std::wstring shortcutPath = szDesktopPath;
@@ -355,41 +351,33 @@ void CUninstallerWnd::DoUninstall()
         // 删除安装文件
         UpdateProgress(30, L"progress_removing_files");
         
-        // 模拟删除进度
-        for (int i = 30; i <= 80; i += 5)
+        // 收集所有需要删除的文件和目录
+        std::vector<std::wstring> filesToDelete;
+        std::vector<std::wstring> dirsToDelete;
+        CollectFilesAndDirectories(m_strInstallPath, filesToDelete, dirsToDelete);
+        
+        int totalItems = filesToDelete.size() + dirsToDelete.size();
+        int processedItems = 0;
+        
+        // 删除文件
+        for (const auto& file : filesToDelete)
         {
-            UpdateProgress(i, L"progress_removing_files");
-            Sleep(200);
+            SetFileAttributes(file.c_str(), FILE_ATTRIBUTE_NORMAL);
+            DeleteFile(file.c_str());
+            
+            processedItems++;
+            int progress = 30 + (processedItems * 50 / totalItems);
+            UpdateProgress(progress, L"progress_removing_files");
         }
         
-        // 删除除卸载程序外的所有文件
-        std::wstring searchPath = m_strInstallPath + L"\\*.*";
-        WIN32_FIND_DATA findData;
-        HANDLE hFind = FindFirstFile(searchPath.c_str(), &findData);
-        
-        if (hFind != INVALID_HANDLE_VALUE)
+        // 删除目录（从最深层开始）
+        for (auto it = dirsToDelete.rbegin(); it != dirsToDelete.rend(); ++it)
         {
-            do
-            {
-                if (wcscmp(findData.cFileName, L".") == 0 || 
-                    wcscmp(findData.cFileName, L"..") == 0 ||
-                    _wcsicmp(findData.cFileName, APP_UNINSTALL_NAME) == 0)
-                    continue;
-                
-                std::wstring fullPath = m_strInstallPath + L"\\" + findData.cFileName;
-                
-                if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-                {
-                    CInstallHelper::RemoveDirectory(fullPath);
-                }
-                else
-                {
-                    SetFileAttributes(fullPath.c_str(), FILE_ATTRIBUTE_NORMAL);
-                    DeleteFile(fullPath.c_str());
-                }
-            } while (FindNextFile(hFind, &findData));
+            RemoveDirectory(it->c_str());
             
-            FindClose(hFind);
+            processedItems++;
+            int progress = 30 + (processedItems * 50 / totalItems);
+            UpdateProgress(progress, L"progress_removing_files");
         }
         
         UpdateProgress(85, L"progress_files_removed");
@@ -567,3 +555,45 @@ void CUninstallerWnd::HandleRelatedControlClick(CControlUI* pControl)
         }
     }
 }
+
+void CUninstallerWnd::CollectFilesAndDirectories(const std::wstring& rootPath, 
+                                                   std::vector<std::wstring>& files, 
+                                                   std::vector<std::wstring>& dirs)
+{
+    std::wstring searchPath = rootPath + L"\\*.*";
+    WIN32_FIND_DATA findData;
+    HANDLE hFind = FindFirstFile(searchPath.c_str(), &findData);
+    
+    if (hFind == INVALID_HANDLE_VALUE)
+        return;
+    
+    do
+    {
+        // 跳过 . 和 ..
+        if (wcscmp(findData.cFileName, L".") == 0 || 
+            wcscmp(findData.cFileName, L"..") == 0)
+            continue;
+        
+        // 跳过卸载程序自身
+        if (_wcsicmp(findData.cFileName, APP_UNINSTALL_NAME) == 0)
+            continue;
+        
+        std::wstring fullPath = rootPath + L"\\" + findData.cFileName;
+        
+        if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            // 递归处理子目录
+            CollectFilesAndDirectories(fullPath, files, dirs);
+            // 目录本身添加到列表（最后删除）
+            dirs.push_back(fullPath);
+        }
+        else
+        {
+            // 文件添加到列表
+            files.push_back(fullPath);
+        }
+    } while (FindNextFile(hFind, &findData));
+    
+    FindClose(hFind);
+}
+

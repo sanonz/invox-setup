@@ -708,9 +708,8 @@ void CInstallerWnd::DoInstall()
         // 写入注册表
         UpdateProgress(90, L"progress_writing_registry");
         std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
-        UINT64 installSize = CInstallHelper::GetDirectorySize(m_strInstallPath);
         if (CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_VERSION, APP_PUBLISHER,
-            m_strInstallPath, uninstallPath, exePath, installSize))
+            m_strInstallPath, uninstallPath, exePath, m_totalBytes))
         {
             m_currentStep = STEP_REGISTRY_WRITTEN;
             m_registryWritten = true;

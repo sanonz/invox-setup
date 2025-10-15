@@ -452,42 +452,6 @@ std::wstring CInstallHelper::EnsureAppNameInPath(const std::wstring& path, const
     return result;
 }
 
-UINT64 CInstallHelper::GetDirectorySize(const std::wstring& path)
-{
-    UINT64 totalSize = 0;
-    
-    std::wstring searchPath = path + L"\\*.*";
-    WIN32_FIND_DATA findData;
-    HANDLE hFind = FindFirstFile(searchPath.c_str(), &findData);
-    
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if (wcscmp(findData.cFileName, L".") == 0 || wcscmp(findData.cFileName, L"..") == 0)
-                continue;
-            
-            std::wstring fullPath = path + L"\\" + findData.cFileName;
-            
-            if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            {
-                totalSize += GetDirectorySize(fullPath);
-            }
-            else
-            {
-                LARGE_INTEGER fileSize;
-                fileSize.LowPart = findData.nFileSizeLow;
-                fileSize.HighPart = findData.nFileSizeHigh;
-                totalSize += fileSize.QuadPart;
-            }
-        } while (FindNextFile(hFind, &findData));
-        
-        FindClose(hFind);
-    }
-    
-    return totalSize;
-}
-
 bool CInstallHelper::RemoveDirectory(const std::wstring& path)
 {
     std::wstring searchPath = path + L"\\*.*";

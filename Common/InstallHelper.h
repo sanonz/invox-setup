@@ -65,9 +65,6 @@ public:
     // 确保路径以应用名称结尾
     static std::wstring EnsureAppNameInPath(const std::wstring& path, const std::wstring& appName);
     
-    // 计算目录大小（字节）
-    static UINT64 GetDirectorySize(const std::wstring& path);
-    
     // 删除目录及所有内容
     static bool RemoveDirectory(const std::wstring& path);
     
