@@ -2,13 +2,35 @@
 <Res>
   <Text id="uninstaller_title" value="卸载程序" />
   <Text id="welcome_text" value="Invox Setup" />
-  <Text id="reason_label" value="卸载原因：" />
-  <Text id="reason1_text" value="不需要了" />
-  <Text id="reason2_text" value="安装失败" />
-  <Text id="reason3_text" value="其他" />
   <Text id="feedback_label" value="意见反馈（可选）：" />
   <Text id="uninstall_btn" value="残忍卸载" />
   <Text id="uninstalling" value="正在卸载..." />
   <Text id="uninstall_complete" value="卸载完成！感谢您的使用。" />
   <Text id="goodbye_btn" value="再见" />
+  
+  <!-- Progress messages -->
+  <Text id="progress_preparing" value="正在准备卸载..." />
+  <Text id="progress_app_running" value="检测到应用程序正在运行，正在尝试关闭..." />
+  <Text id="progress_app_close_failed" value="无法关闭应用程序，请手动关闭后重试！" />
+  <Text id="progress_reporting_analytics" value="正在上报卸载信息..." />
+  <Text id="progress_calculating_size" value="正在计算文件大小..." />
+  <Text id="progress_removing_shortcuts" value="正在删除快捷方式..." />
+  <Text id="progress_removing_files" value="正在删除文件..." />
+  <Text id="progress_files_removed" value="文件删除完成" />
+  <Text id="progress_cleaning_start_menu" value="正在清理开始菜单快捷方式..." />
+  <Text id="progress_cleaning_registry" value="正在清理注册表..." />
+  <Text id="progress_complete" value="卸载完成！" />
+  
+  <!-- Reasons -->
+  <Text id="reason_label" value="卸载原因：" />
+  <Text id="reason1_text" value="不需要了" />
+  <Text id="reason2_text" value="无法使用" />
+  <Text id="reason3_text" value="其他" />
+  <Text id="reason_unknown" value="未知" />
+  
+  <!-- Message box texts -->
+  <Text id="confirm_exit_title" value="警告" />
+  <Text id="confirm_exit_message" value="卸载正在进行中，确定要退出吗？\n\n警告：强制退出可能导致：\n• 部分文件未完全删除\n• 注册表残留\n• 快捷方式未清理\n\n建议等待卸载完成。是否仍要退出？" />
+  <Text id="failed_title" value="错误" />
+  <Text id="failed_message" value="卸载失败！" />
 </Res>

@@ -82,7 +82,7 @@
 			<VerticalLayout>
 				<Progress name="uninstall_progress" />
 				<Control height="20" />
-				<Label name="progress_text" text="uninstalling" resourcetext="true" style="text_secondary" font="0" align="center" />
+				<Text name="progress_text" text="uninstalling" resourcetext="true" style="text_secondary" height="40" font="0" align="center" />
 			</VerticalLayout>
 		</VerticalLayout>
 		<!-- 第三页：卸载完成页面	-->

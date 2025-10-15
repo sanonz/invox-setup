@@ -68,6 +68,9 @@ private:
     // 更新进度
     void UpdateProgress(int percent, const std::wstring& text);
     
+    // 获取本地化文本
+    std::wstring GetLocalizedText(const std::wstring& textId);
+    
     // 7z 解压进度回调
     static void OnExtractProgress(UINT64 bytesProcessed, UINT64 totalBytes, void* userData);
     

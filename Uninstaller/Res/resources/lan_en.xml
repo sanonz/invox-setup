@@ -2,13 +2,35 @@
 <Res>
   <Text id="uninstaller_title" value="Uninstaller" />
   <Text id="welcome_text" value="Invox Setup" />
-  <Text id="reason_label" value="why you're uninstalling:" />
-  <Text id="reason1_text" value="Don't need it anymore" />
-  <Text id="reason2_text" value="Installation failed" />
-  <Text id="reason3_text" value="Other" />
   <Text id="feedback_label" value="Feedback (Optional):" />
   <Text id="uninstall_btn" value="Uninstall" />
   <Text id="uninstalling" value="Uninstalling..." />
   <Text id="uninstall_complete" value="Uninstall complete! Thank you for using." />
   <Text id="goodbye_btn" value="Goodbye" />
+  
+  <!-- Progress messages -->
+  <Text id="progress_preparing" value="Preparing uninstallation..." />
+  <Text id="progress_app_running" value="Application is running, attempting to close..." />
+  <Text id="progress_app_close_failed" value="Unable to close application, please close manually and try again!" />
+  <Text id="progress_reporting_analytics" value="Reporting uninstallation information..." />
+  <Text id="progress_calculating_size" value="Calculating file size..." />
+  <Text id="progress_removing_shortcuts" value="Removing shortcuts..." />
+  <Text id="progress_removing_files" value="Removing files..." />
+  <Text id="progress_files_removed" value="Files removed successfully" />
+  <Text id="progress_cleaning_start_menu" value="Cleaning start menu shortcuts..." />
+  <Text id="progress_cleaning_registry" value="Cleaning registry..." />
+  <Text id="progress_complete" value="Uninstallation completed!" />
+  
+  <!-- Reasons -->
+  <Text id="reason_label" value="Why you're uninstalling:" />
+  <Text id="reason1_text" value="Don't need it" />
+  <Text id="reason2_text" value="Doesn't work" />
+  <Text id="reason3_text" value="Other" />
+  <Text id="reason_unknown" value="Unknown" />
+  
+  <!-- Message box texts -->
+  <Text id="confirm_exit_title" value="Warning" />
+  <Text id="confirm_exit_message" value="Uninstallation is in progress, are you sure you want to exit?\n\nWarning: Force exit may cause:\n• Some files not completely deleted\n• Registry residue\n• Shortcuts not cleaned\n\nIt is recommended to wait for uninstallation to complete. Do you still want to exit?" />
+  <Text id="failed_title" value="Error" />
+  <Text id="failed_message" value="Uninstallation failed!" />
 </Res>

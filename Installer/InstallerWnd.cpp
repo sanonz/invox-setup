@@ -143,6 +143,17 @@ LPCTSTR CInstallerWnd::QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType)
     return NULL;
 }
 
+std::wstring CInstallerWnd::GetLocalizedText(const std::wstring& textId)
+{
+    CDuiString strText = CResourceManager::GetInstance()->GetText(textId.c_str());
+    if (strText.IsEmpty())
+    {
+        // 如果找不到翻译，返回原始ID作为备用
+        return textId;
+    }
+    return std::wstring(strText.GetData());
+}
+
 void CInstallerWnd::Notify(TNotifyUI& msg)
 {
     if (msg.sType == _T("windowinit"))
@@ -398,14 +409,14 @@ void CInstallerWnd::DoInstall()
         CLogger::GetInstance()->LogFormat(LOG_INFO, L"Install Path: %s", m_strInstallPath.c_str());
         
         // 更新进度：开始安装
-        UpdateProgress(0, L"正在准备安装...");
+        UpdateProgress(0, L"progress_preparing");
         Sleep(500);
         
         // 检查目标程序是否正在运行
         if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
         {
             CLogger::GetInstance()->LogWarning(L"Target application is already running");
-            UpdateProgress(0, L"检测到应用程序正在运行，请先关闭应用程序！");
+            UpdateProgress(0, L"progress_app_running");
             Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -419,19 +430,19 @@ void CInstallerWnd::DoInstall()
             switch (checkResult)
             {
             case CInstallHelper::INSTALL_ERR_INSUFFICIENT_PRIVILEGE:
-                errorMsg = L"没有足够的权限，请以管理员身份运行！";
+                errorMsg = L"progress_insufficient_privilege";
                 CLogger::GetInstance()->LogError(L"Insufficient privilege");
                 break;
             case CInstallHelper::INSTALL_ERR_PATH_TOO_LONG:
-                errorMsg = L"安装路径过长，请选择较短的路径！";
+                errorMsg = L"progress_path_too_long";
                 CLogger::GetInstance()->LogError(L"Path too long");
                 break;
             case CInstallHelper::INSTALL_ERR_INVALID_PATH:
-                errorMsg = L"安装路径无效，请选择有效的路径！";
+                errorMsg = L"progress_invalid_path";
                 CLogger::GetInstance()->LogError(L"Invalid path");
                 break;
             default:
-                errorMsg = L"安装前检查失败！";
+                errorMsg = L"progress_unknown_error";
                 CLogger::GetInstance()->LogError(L"Unknown error");
                 break;
             }
@@ -458,7 +469,7 @@ void CInstallerWnd::DoInstall()
         // 检查压缩包是否存在
         if (!PathFileExists(m_tempDir.c_str()))
         {
-            UpdateProgress(0, L"找不到安装包文件！");
+            UpdateProgress(0, L"progress_archive_not_found");
             Sleep(2000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -474,7 +485,7 @@ void CInstallerWnd::DoInstall()
         // 检查 7zxa.dll 是否存在
         if (!PathFileExists(m_tempDir.c_str()))
         {
-            UpdateProgress(0, L"找不到 7zxa.dll 文件！");
+            UpdateProgress(0, L"progress_7zdll_not_found");
             Sleep(2000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -491,7 +502,7 @@ void CInstallerWnd::DoInstall()
         if (FAILED(hrDir) && hrDir != HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS))
         {
             CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Failed to create temp directory: 0x%08X", hrDir);
-            UpdateProgress(0, L"创建临时目录失败！");
+            UpdateProgress(0, L"progress_create_temp_failed");
             Sleep(2000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -510,7 +521,7 @@ void CInstallerWnd::DoInstall()
         }
         
         // 从资源提取压缩包
-        UpdateProgress(2, L"正在提取安装包...");
+        UpdateProgress(2, L"progress_extracting_package");
         m_archivePath = m_tempDir + APP_ARCHIVE;
         HINSTANCE hInstance = CPaintManagerUI::GetInstance();
         
@@ -518,7 +529,7 @@ void CInstallerWnd::DoInstall()
         HRSRC h7zRes = ::FindResource(hInstance, MAKEINTRESOURCE(IDR_7ZXA_DLL), RT_RCDATA);
         if (h7zRes == NULL)
         {
-            UpdateProgress(0, L"找不到资源 IDR_7ZXA_DLL！");
+            UpdateProgress(0, L"progress_resource_7zdll_not_found");
             Sleep(5000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -530,7 +541,7 @@ void CInstallerWnd::DoInstall()
         HRSRC hAppRes = ::FindResource(hInstance, MAKEINTRESOURCE(IDR_APP_7Z), RT_RCDATA);
         if (hAppRes == NULL)
         {
-            UpdateProgress(0, L"找不到资源 IDR_APP_7Z！");
+            UpdateProgress(0, L"progress_resource_app_not_found");
             Sleep(5000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -544,7 +555,7 @@ void CInstallerWnd::DoInstall()
         std::wstring driveTempPath = CInstallHelper::GetDrivePath(m_tempDir);
         if (!CInstallHelper::CheckDiskSpace(driveTempPath, requiredSize))
         {
-            UpdateProgress(0, L"磁盘空间不足，请清理磁盘后重试！");
+            UpdateProgress(0, L"progress_disk_full");
             CLogger::GetInstance()->LogError(L"Disk full");
             Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
@@ -557,7 +568,7 @@ void CInstallerWnd::DoInstall()
         )
         {
             CLogger::GetInstance()->LogError(L"Failed to extract installation package");
-            UpdateProgress(0, L"提取安装包失败！请检查磁盘空间和权限。");
+            UpdateProgress(0, L"progress_extract_package_failed");
             Sleep(2000);
             RollbackInstallation();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
@@ -576,7 +587,7 @@ void CInstallerWnd::DoInstall()
         if (!extractor->Open(m_archivePath))
         {
             CLogger::GetInstance()->LogError(L"Failed to open archive");
-            UpdateProgress(0, L"打开压缩包失败！");
+            UpdateProgress(0, L"progress_open_archive_failed");
             Sleep(2000);
             RollbackInstallation();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
@@ -590,7 +601,7 @@ void CInstallerWnd::DoInstall()
         std::wstring drivePath = CInstallHelper::GetDrivePath(m_strInstallPath);
         if (!CInstallHelper::CheckDiskSpace(drivePath, m_totalBytes))
         {
-            UpdateProgress(0, L"磁盘空间不足，请清理磁盘后重试！");
+            UpdateProgress(0, L"progress_disk_full");
             CLogger::GetInstance()->LogError(L"Disk full");
             Sleep(3000);
             extractor->Close();
@@ -599,12 +610,12 @@ void CInstallerWnd::DoInstall()
         }
         
         // 创建安装目录
-        UpdateProgress(5, L"正在创建安装目录...");
+        UpdateProgress(5, L"progress_creating_install_dir");
         HRESULT hrInstallDir = SHCreateDirectoryEx(NULL, m_strInstallPath.c_str(), NULL);
         if (FAILED(hrInstallDir) && hrInstallDir != HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS))
         {
             CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Failed to create install directory: 0x%08X", hrInstallDir);
-            UpdateProgress(0, L"创建安装目录失败！请检查权限。");
+            UpdateProgress(0, L"progress_create_install_dir_failed");
             Sleep(2000);
             delete extractor;
             RollbackInstallation();
@@ -627,11 +638,11 @@ void CInstallerWnd::DoInstall()
         }
         
         // 解压文件
-        UpdateProgress(10, L"正在解压文件...");
+        UpdateProgress(10, L"progress_extracting_files");
         if (!extractor->Extract(m_strInstallPath))
         {
             CLogger::GetInstance()->LogError(L"Failed to extract files");
-            UpdateProgress(0, L"解压文件失败！");
+            UpdateProgress(0, L"progress_extract_files_failed");
             Sleep(2000);
             delete extractor;
             RollbackInstallation();
@@ -644,7 +655,7 @@ void CInstallerWnd::DoInstall()
         
         m_currentStep = STEP_FILES_EXTRACTED;
         CLogger::GetInstance()->LogInfo(L"Files extracted successfully");
-        UpdateProgress(80, L"文件解压完成");
+        UpdateProgress(80, L"progress_files_extracted");
         Sleep(300);
         
         // 检查是否需要中止
@@ -659,7 +670,7 @@ void CInstallerWnd::DoInstall()
         std::wstring exePath = m_strInstallPath + L"\\" + APP_EXE_NAME;
         
         // 创建开始菜单快捷方式（始终创建，用于 Windows 搜索）
-        UpdateProgress(83, L"正在创建开始菜单快捷方式...");
+        UpdateProgress(83, L"progress_creating_start_menu");
         if (CInstallHelper::CreateStartMenuShortcut(exePath, APP_NAME))
         {
             m_currentStep = STEP_START_MENU_CREATED;
@@ -675,7 +686,7 @@ void CInstallerWnd::DoInstall()
         // 创建桌面快捷方式（可选）
         if (m_pDesktopCheck && m_pDesktopCheck->IsSelected())
         {
-            UpdateProgress(86, L"正在创建桌面快捷方式...");
+            UpdateProgress(86, L"progress_creating_desktop_shortcut");
             if (CInstallHelper::CreateDesktopShortcut(exePath, APP_NAME))
             {
                 m_currentStep = STEP_DESKTOP_SHORTCUT_CREATED;
@@ -690,7 +701,7 @@ void CInstallerWnd::DoInstall()
         }
         
         // 写入注册表
-        UpdateProgress(90, L"正在写入注册表...");
+        UpdateProgress(90, L"progress_writing_registry");
         std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
         UINT64 installSize = CInstallHelper::GetDirectorySize(m_strInstallPath);
         if (CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_VERSION, APP_PUBLISHER,
@@ -707,12 +718,12 @@ void CInstallerWnd::DoInstall()
         Sleep(300);
         
         // 上报安装信息
-        UpdateProgress(95, L"正在上报安装信息...");
+        UpdateProgress(95, L"progress_reporting_analytics");
         CAnalytics::GetInstance()->ReportInstall(APP_NAME, APP_VERSION, m_strInstallPath);
         Sleep(300);
         
         // 安装完成
-        UpdateProgress(100, L"安装完成！");
+        UpdateProgress(100, L"progress_installation_complete");
         m_currentStep = STEP_COMPLETED;
         CLogger::GetInstance()->LogInfo(L"Installation completed successfully");
         Sleep(500);
@@ -743,7 +754,7 @@ void CInstallerWnd::DoInstall()
 void CInstallerWnd::RollbackInstallation()
 {
     CLogger::GetInstance()->LogWarning(L"========== Starting Installation Rollback ==========");
-    UpdateProgress(0, L"安装失败，正在清理...");
+    UpdateProgress(0, L"progress_rollback_cleaning");
     
     // 根据当前步骤逆序清理
     
@@ -825,7 +836,8 @@ void CInstallerWnd::OnExtractProgress(UINT64 bytesProcessed, UINT64 totalBytes, 
         int percent = (int)(10 + (bytesProcessed * 70 / totalBytes));
         
         WCHAR szText[256] = { 0 };
-        wsprintf(szText, L"正在解压文件... %d%%", (int)(bytesProcessed * 100 / totalBytes));
+        std::wstring formatText = pThis->GetLocalizedText(L"progress_extracting_with_percent");
+        wsprintf(szText, formatText.c_str(), (int)(bytesProcessed * 100 / totalBytes));
         
         pThis->UpdateProgress(percent, szText);
     }

@@ -3,7 +3,7 @@
   <Text id="installer_title" value="安装程序" />
   <Text id="welcome_text" value=" Invox Setup" />
   <Text id="agree_prefix" value="我已阅读并同意" />
-  <Text id="agreement_text" value="《用户协议》" />
+  <Text id="agreement_text" value="《隐私政策》" />
   <Text id="custom_install" value="自定义安装" />
   <Text id="quick_install" value="快速安装" />
   <Text id="install_path" value="安装路径：" />
@@ -11,4 +11,33 @@
   <Text id="install_now" value="立即安装" />
   <Text id="installing" value="正在安装..." />
   <Text id="launch_now" value="立即打开" />
+  
+  <!-- Progress messages -->
+  <Text id="progress_preparing" value="正在准备安装..." />
+  <Text id="progress_app_running" value="检测到应用程序正在运行，请先关闭应用程序！" />
+  <Text id="progress_insufficient_privilege" value="没有足够的权限，请以管理员身份运行！" />
+  <Text id="progress_path_too_long" value="安装路径过长，请选择较短的路径！" />
+  <Text id="progress_invalid_path" value="安装路径无效，请选择有效的路径！" />
+  <Text id="progress_unknown_error" value="安装前检查失败！" />
+  <Text id="progress_archive_not_found" value="找不到安装包文件！" />
+  <Text id="progress_7zdll_not_found" value="找不到 7zxa.dll 文件！" />
+  <Text id="progress_create_temp_failed" value="创建临时目录失败！" />
+  <Text id="progress_extracting_package" value="正在提取安装包..." />
+  <Text id="progress_resource_7zdll_not_found" value="找不到资源 IDR_7ZXA_DLL！" />
+  <Text id="progress_resource_app_not_found" value="找不到资源 IDR_APP_7Z！" />
+  <Text id="progress_disk_full" value="磁盘空间不足，请清理磁盘后重试！" />
+  <Text id="progress_extract_package_failed" value="提取安装包失败！请检查磁盘空间和权限。" />
+  <Text id="progress_open_archive_failed" value="打开压缩包失败！" />
+  <Text id="progress_creating_install_dir" value="正在创建安装目录..." />
+  <Text id="progress_create_install_dir_failed" value="创建安装目录失败！请检查权限。" />
+  <Text id="progress_extracting_files" value="正在解压文件..." />
+  <Text id="progress_extract_files_failed" value="解压文件失败！" />
+  <Text id="progress_files_extracted" value="文件解压完成" />
+  <Text id="progress_creating_start_menu" value="正在创建开始菜单快捷方式..." />
+  <Text id="progress_creating_desktop_shortcut" value="正在创建桌面快捷方式..." />
+  <Text id="progress_writing_registry" value="正在写入注册表..." />
+  <Text id="progress_reporting_analytics" value="正在上报安装信息..." />
+  <Text id="progress_installation_complete" value="安装完成！" />
+  <Text id="progress_rollback_cleaning" value="安装失败，正在清理..." />
+  <Text id="progress_extracting_with_percent" value="正在解压文件... %d%%" />
 </Res>

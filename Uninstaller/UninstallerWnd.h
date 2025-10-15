@@ -56,6 +56,9 @@ private:
     // 更新进度
     void UpdateProgress(int percent, const std::wstring& text);
     
+    // 获取本地化文本
+    std::wstring GetLocalizedText(const std::wstring& textId);
+    
     // 获取选中的卸载原因
     std::wstring GetSelectedReason();
     

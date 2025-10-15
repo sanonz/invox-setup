@@ -121,6 +121,17 @@ LPCTSTR CUninstallerWnd::QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType)
     return NULL;
 }
 
+std::wstring CUninstallerWnd::GetLocalizedText(const std::wstring& textId)
+{
+    CDuiString strText = CResourceManager::GetInstance()->GetText(textId.c_str());
+    if (strText.IsEmpty())
+    {
+        // 如果找不到翻译，返回原始ID作为备用
+        return textId;
+    }
+    return std::wstring(strText.GetData());
+}
+
 void CUninstallerWnd::Notify(TNotifyUI& msg)
 {
     if (msg.sType == _T("windowinit"))
@@ -136,12 +147,9 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
             if (m_bUninstalling)
             {
                 if (MessageBox(m_hWnd, 
-                    _T("卸载正在进行中，确定要退出吗？\n\n警告：强制退出可能导致：\n")
-                    _T("• 部分文件未完全删除\n")
-                    _T("• 注册表残留\n")
-                    _T("• 快捷方式未清理\n\n")
-                    _T("建议等待卸载完成。是否仍要退出？"), 
-                    _T("警告"), MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES)
+                    GetLocalizedText(L"uninstall_confirm_exit_message").c_str(), 
+                    GetLocalizedText(L"uninstall_confirm_exit_title").c_str(), 
+                    MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES)
                 {
                     return;
                 }
@@ -225,7 +233,8 @@ LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            MessageBox(m_hWnd, _T("卸载失败！"), _T("错误"), MB_OK | MB_ICONERROR);
+            MessageBox(m_hWnd, GetLocalizedText(L"uninstall_failed_message").c_str(), 
+                GetLocalizedText(L"uninstall_failed_title").c_str(), MB_OK | MB_ICONERROR);
             Close();
         }
         
@@ -285,19 +294,19 @@ void CUninstallerWnd::DoUninstall()
         CLogger::GetInstance()->LogFormat(LOG_INFO, L"Uninstall Reason: %s", m_strReason.c_str());
         
         // 更新进度：开始卸载
-        UpdateProgress(0, L"正在准备卸载...");
+        UpdateProgress(0, L"progress_preparing");
         Sleep(500);
         
         // 检查目标程序是否正在运行
         if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
         {
             CLogger::GetInstance()->LogWarning(L"Target application is running, attempting to close");
-            UpdateProgress(0, L"检测到应用程序正在运行，正在尝试关闭...");
+            UpdateProgress(0, L"progress_app_running");
             
             if (!CInstallHelper::KillProcess(APP_EXE_NAME, 5000))
             {
                 CLogger::GetInstance()->LogError(L"Failed to close application");
-                UpdateProgress(0, L"无法关闭应用程序，请手动关闭后重试！");
+                UpdateProgress(0, L"progress_app_close_failed");
                 Sleep(3000);
                 ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, FALSE, 0);
                 return;
@@ -308,7 +317,7 @@ void CUninstallerWnd::DoUninstall()
         }
         
         // 上报卸载信息
-        UpdateProgress(5, L"正在上报卸载信息...");
+        UpdateProgress(5, L"progress_reporting_analytics");
         CAnalytics::GetInstance()->ReportUninstall(APP_NAME, m_strReason, m_strFeedback);
         Sleep(300);
         
@@ -321,12 +330,12 @@ void CUninstallerWnd::DoUninstall()
         }
         
         // 计算文件总大小
-        UpdateProgress(10, L"正在计算文件大小...");
+        UpdateProgress(10, L"progress_calculating_size");
         UINT64 totalSize = CInstallHelper::GetDirectorySize(m_strInstallPath);
         Sleep(300);
         
         // 删除桌面快捷方式
-        UpdateProgress(20, L"正在删除快捷方式...");
+        UpdateProgress(20, L"progress_removing_shortcuts");
         WCHAR szDesktopPath[MAX_PATH] = { 0 };
         SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szDesktopPath);
         std::wstring shortcutPath = szDesktopPath;
@@ -344,12 +353,12 @@ void CUninstallerWnd::DoUninstall()
         Sleep(300);
         
         // 删除安装文件
-        UpdateProgress(30, L"正在删除文件...");
+        UpdateProgress(30, L"progress_removing_files");
         
         // 模拟删除进度
         for (int i = 30; i <= 80; i += 5)
         {
-            UpdateProgress(i, L"正在删除文件...");
+            UpdateProgress(i, L"progress_removing_files");
             Sleep(200);
         }
         
@@ -383,7 +392,7 @@ void CUninstallerWnd::DoUninstall()
             FindClose(hFind);
         }
         
-        UpdateProgress(85, L"文件删除完成");
+        UpdateProgress(85, L"progress_files_removed");
         CLogger::GetInstance()->LogInfo(L"Application files deleted successfully");
         Sleep(300);
         
@@ -396,7 +405,7 @@ void CUninstallerWnd::DoUninstall()
         }
         
         // 删除开始菜单快捷方式
-        UpdateProgress(87, L"正在清理开始菜单快捷方式...");
+        UpdateProgress(87, L"progress_cleaning_start_menu");
         if (CInstallHelper::RemoveStartMenuShortcut(APP_NAME))
         {
             CLogger::GetInstance()->LogInfo(L"Start menu shortcut deleted successfully");
@@ -408,7 +417,7 @@ void CUninstallerWnd::DoUninstall()
         Sleep(300);
         
         // 删除注册表
-        UpdateProgress(90, L"正在清理注册表...");
+        UpdateProgress(90, L"progress_cleaning_registry");
         if (CInstallHelper::RemoveUninstallRegistry(APP_NAME))
         {
             CLogger::GetInstance()->LogInfo(L"Registry cleaned up successfully");
@@ -420,7 +429,7 @@ void CUninstallerWnd::DoUninstall()
         Sleep(300);
         
         // 卸载完成
-        UpdateProgress(100, L"卸载完成！");
+        UpdateProgress(100, L"progress_complete");
         CLogger::GetInstance()->LogInfo(L"Uninstallation completed successfully");
         Sleep(500);
         
@@ -450,17 +459,17 @@ std::wstring CUninstallerWnd::GetSelectedReason()
 {
     if (m_pReasonOption1 && m_pReasonOption1->IsSelected())
     {
-        return L"不需要了";
+        return L"reason1_text";
     }
     else if (m_pReasonOption2 && m_pReasonOption2->IsSelected())
     {
-        return L"安装失败";
+        return L"reason2_text";
     }
     else if (m_pReasonOption3 && m_pReasonOption3->IsSelected())
     {
-        return L"其他";
+        return L"reason3_text";
     }
-    return L"未知";
+    return L"reason_unknown";
 }
 
 std::wstring CUninstallerWnd::GetFeedback()
