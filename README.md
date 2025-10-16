@@ -106,8 +106,6 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
 
 ```cpp
 CAnalytics::GetInstance()->ReportInstall(
-    APP_NAME,           // 应用名称
-    APP_VERSION,        // 版本号
     m_strInstallPath    // 安装路径
 );
 ```
@@ -116,6 +114,7 @@ CAnalytics::GetInstance()->ReportInstall(
 ```json
 {
   "event_type": "install",
+  "device_id": "{GUID}",
   "app_name": "InvvoxApplication",
   "version": "1.0.0",
   "install_path": "C:\\Program Files\\InvvoxApplication",
@@ -128,7 +127,6 @@ CAnalytics::GetInstance()->ReportInstall(
 
 ```cpp
 CAnalytics::GetInstance()->ReportUninstall(
-    APP_NAME,       // 应用名称
     reason,         // 卸载原因
     feedback        // 用户反馈
 );
@@ -138,7 +136,9 @@ CAnalytics::GetInstance()->ReportUninstall(
 ```json
 {
   "event_type": "uninstall",
+  "device_id": "{GUID}",
   "app_name": "InvvoxApplication",
+  "version": "1.0.0",
   "reason": "不需要了",
   "feedback": "功能不符合需求",
   "timestamp": "2025-10-11 12:35:20"

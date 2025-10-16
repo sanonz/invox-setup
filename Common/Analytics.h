@@ -19,10 +19,10 @@ public:
     bool ReportEvent(const std::wstring& eventType, const std::map<std::wstring, std::wstring>& params);
     
     // 上报安装事件
-    bool ReportInstall(const std::wstring& appName, const std::wstring& version, const std::wstring& installPath);
+    bool ReportInstall(const std::wstring& installPath);
     
     // 上报卸载事件
-    bool ReportUninstall(const std::wstring& appName, const std::wstring& reason, const std::wstring& feedback);
+    bool ReportUninstall(const std::wstring& reason, const std::wstring& feedback);
 
 private:
     CAnalytics();
@@ -40,8 +40,16 @@ private:
     // 字符串转换
     std::string WStringToString(const std::wstring& wstr);
     std::wstring StringToWString(const std::string& str);
+    
+    // 获取设备唯一ID
+    std::wstring GetDeviceId();
+    
+    // 获取操作系统版本
+    std::wstring GetOSVersion();
 
 private:
     static CAnalytics* m_pInstance;
     std::wstring m_strEndpoint;
+    std::wstring m_strDeviceId; // 缓存设备ID
+    std::wstring m_strOSVersion; // 缓存系统版本
 };

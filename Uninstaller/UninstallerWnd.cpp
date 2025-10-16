@@ -319,7 +319,7 @@ void CUninstallerWnd::DoUninstall()
         
         // 上报卸载信息
         UpdateProgress(5, L"progress_reporting_analytics");
-        CAnalytics::GetInstance()->ReportUninstall(APP_NAME, m_strReason, m_strFeedback);
+        CAnalytics::GetInstance()->ReportUninstall(m_strReason, m_strFeedback);
         Sleep(300);
         
         // 检查是否需要中止

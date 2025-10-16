@@ -723,7 +723,7 @@ void CInstallerWnd::DoInstall()
         
         // 上报安装信息
         UpdateProgress(95, L"progress_reporting_analytics");
-        CAnalytics::GetInstance()->ReportInstall(APP_NAME, APP_VERSION, m_strInstallPath);
+        CAnalytics::GetInstance()->ReportInstall(m_strInstallPath);
         Sleep(300);
         
         // 安装完成
