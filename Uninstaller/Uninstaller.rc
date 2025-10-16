@@ -95,7 +95,7 @@ BEGIN
             VALUE "FileVersion", APP_VERSION
             VALUE "InternalName", "Uninstaller.exe"
             VALUE "LegalCopyright", APP_COPYRIGHT
-            VALUE "ProductName", APP_NAME
+            VALUE "ProductName", APP_PRODUCT_NAME
             VALUE "ProductVersion", APP_VERSION
         END
     END

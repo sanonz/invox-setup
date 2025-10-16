@@ -332,13 +332,7 @@ void CUninstallerWnd::DoUninstall()
         
         // 删除桌面快捷方式
         UpdateProgress(15, L"progress_removing_shortcuts");
-        WCHAR szDesktopPath[MAX_PATH] = { 0 };
-        SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szDesktopPath);
-        std::wstring shortcutPath = szDesktopPath;
-        shortcutPath += L"\\";
-        shortcutPath += APP_NAME;
-        shortcutPath += L".lnk";
-        if (DeleteFile(shortcutPath.c_str()))
+        if (CInstallHelper::RemoveDesktopShortcut(APP_PRODUCT_NAME))
         {
             CLogger::GetInstance()->LogInfo(L"Desktop shortcut deleted successfully");
         }
@@ -347,8 +341,7 @@ void CUninstallerWnd::DoUninstall()
             CLogger::GetInstance()->LogWarning(L"Desktop shortcut does not exist or failed to delete");
         }
         Sleep(300);
-        
-        // 删除安装文件
+                // 删除安装文件
         UpdateProgress(30, L"progress_removing_files");
         
         // 收集所有需要删除的文件和目录
@@ -394,7 +387,7 @@ void CUninstallerWnd::DoUninstall()
         
         // 删除开始菜单快捷方式
         UpdateProgress(87, L"progress_cleaning_start_menu");
-        if (CInstallHelper::RemoveStartMenuShortcut(APP_NAME))
+        if (CInstallHelper::RemoveStartMenuShortcut(APP_PRODUCT_NAME))
         {
             CLogger::GetInstance()->LogInfo(L"Start menu shortcut deleted successfully");
         }

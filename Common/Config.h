@@ -12,6 +12,7 @@
 
 // 应用程序配置
 #define APP_NAME           L"InvoxApp"
+#define APP_PRODUCT_NAME   L"InvoxApp"
 #define APP_VERSION        L"" TOSTRING(APP_VERSION_MAJOR) "." TOSTRING(APP_VERSION_MINOR) "." TOSTRING(APP_VERSION_BUILD) "." TOSTRING(APP_VERSION_REVISION)
 #define APP_PUBLISHER      L"YourCompany"
 #define APP_EXE_NAME       L"InvoxApp.exe"

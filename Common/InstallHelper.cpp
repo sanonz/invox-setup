@@ -277,6 +277,7 @@ bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, con
 }
 
 bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
+    const std::wstring& appProductName,
     const std::wstring& version,
     const std::wstring& publisher,
     const std::wstring& installPath,
@@ -301,7 +302,7 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     {
         // 写入显示名称
         RegSetValueEx(hKey, L"DisplayName", 0, REG_SZ, 
-            (BYTE*)appName.c_str(), static_cast<DWORD>((appName.length() + 1) * sizeof(WCHAR)));
+            (BYTE*)appProductName.c_str(), static_cast<DWORD>((appProductName.length() + 1) * sizeof(WCHAR)));
         
         // 写入版本
         RegSetValueEx(hKey, L"DisplayVersion", 0, REG_SZ,
@@ -412,6 +413,22 @@ bool CInstallHelper::RemoveStartMenuShortcut(const std::wstring& shortcutName, c
     }
     
     return success;
+}
+
+bool CInstallHelper::RemoveDesktopShortcut(const std::wstring& shortcutName)
+{
+    // 获取桌面路径
+    WCHAR szDesktopPath[MAX_PATH] = { 0 };
+    SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szDesktopPath);
+    
+    // 构建快捷方式路径
+    std::wstring shortcutPath = szDesktopPath;
+    shortcutPath += L"\\";
+    shortcutPath += shortcutName;
+    shortcutPath += L".lnk";
+    
+    // 删除快捷方式
+    return DeleteFile(shortcutPath.c_str()) != 0;
 }
 
 std::wstring CInstallHelper::GetProgramFilesPath()

@@ -19,14 +19,15 @@
 ### 修改应用配置 (Config.h)
 
 ```cpp
-#define APP_NAME           L"InvvoxApplication"     // 应用名称
-#define APP_VERSION        L"1.0.0"                 // 应用版本
-#define APP_PUBLISHER      L"YourCompany"           // 发布者
-#define APP_EXE_NAME       L"InvvoxApplication.exe" // 主程序名
-#define APP_UNINSTALL_NAME L"Uninstaller.exe"       // 卸载程序名
-#define APP_ARCHIVE        L"app.7z"                // 安装包文件名
-#define PRIVACY_URL        L"https://..."           // 协议地址
-#define ANALYTICS_ENDPOINT L"https://..."           // 分析 API 端点
+#define APP_NAME           L"InvvoxApp"       // 应用名称
+#define APP_PRODUCT_NAME   L"InvvoxApp"       // 产品名称
+#define APP_VERSION        L"1.0.0"           // 应用版本
+#define APP_PUBLISHER      L"YourCompany"     // 发布者
+#define APP_EXE_NAME       L"InvvoxApp.exe"   // 主程序名
+#define APP_UNINSTALL_NAME L"Uninstaller.exe" // 卸载程序名
+#define APP_ARCHIVE        L"app.7z"          // 安装包文件名
+#define PRIVACY_URL        L"https://..."     // 协议地址
+#define ANALYTICS_ENDPOINT L"https://..."     // 分析 API 端点
 ```
 
 ### 准备安装包

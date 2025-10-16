@@ -46,6 +46,7 @@ public:
     
     // 写入注册表卸载信息
     static bool WriteUninstallRegistry(const std::wstring& appName, 
+        const std::wstring& appProductName,
         const std::wstring& version,
         const std::wstring& publisher,
         const std::wstring& installPath,
@@ -58,6 +59,9 @@ public:
     
     // 删除开始菜单快捷方式
     static bool RemoveStartMenuShortcut(const std::wstring& shortcutName, const std::wstring& folderName = L"");
+    
+    // 删除桌面快捷方式
+    static bool RemoveDesktopShortcut(const std::wstring& shortcutName);
     
     // 获取 Program Files 目录
     static std::wstring GetProgramFilesPath();

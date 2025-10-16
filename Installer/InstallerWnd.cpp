@@ -676,7 +676,7 @@ void CInstallerWnd::DoInstall()
         
         // 创建开始菜单快捷方式（始终创建，用于 Windows 搜索）
         UpdateProgress(83, L"progress_creating_start_menu");
-        if (CInstallHelper::CreateStartMenuShortcut(exePath, APP_NAME))
+        if (CInstallHelper::CreateStartMenuShortcut(exePath, APP_PRODUCT_NAME))
         {
             m_currentStep = STEP_START_MENU_CREATED;
             m_startMenuCreated = true;
@@ -692,7 +692,7 @@ void CInstallerWnd::DoInstall()
         if (m_pDesktopCheck && m_pDesktopCheck->IsSelected())
         {
             UpdateProgress(86, L"progress_creating_desktop_shortcut");
-            if (CInstallHelper::CreateDesktopShortcut(exePath, APP_NAME))
+            if (CInstallHelper::CreateDesktopShortcut(exePath, APP_PRODUCT_NAME))
             {
                 m_currentStep = STEP_DESKTOP_SHORTCUT_CREATED;
                 m_desktopShortcutCreated = true;
@@ -708,7 +708,7 @@ void CInstallerWnd::DoInstall()
         // 写入注册表
         UpdateProgress(90, L"progress_writing_registry");
         std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
-        if (CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_VERSION, APP_PUBLISHER,
+        if (CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_PRODUCT_NAME, APP_VERSION, APP_PUBLISHER,
             m_strInstallPath, uninstallPath, exePath, m_totalBytes))
         {
             m_currentStep = STEP_REGISTRY_WRITTEN;
@@ -773,20 +773,14 @@ void CInstallerWnd::RollbackInstallation()
     if (m_desktopShortcutCreated)
     {
         CLogger::GetInstance()->LogInfo(L"Cleaning up desktop shortcut...");
-        WCHAR szDesktopPath[MAX_PATH] = { 0 };
-        SHGetFolderPath(NULL, CSIDL_DESKTOP, NULL, 0, szDesktopPath);
-        std::wstring shortcutPath = szDesktopPath;
-        shortcutPath += L"\\";
-        shortcutPath += APP_NAME;
-        shortcutPath += L".lnk";
-        DeleteFile(shortcutPath.c_str());
+        CInstallHelper::RemoveDesktopShortcut(APP_PRODUCT_NAME);
     }
     
     // 删除开始菜单快捷方式
     if (m_startMenuCreated)
     {
         CLogger::GetInstance()->LogInfo(L"Cleaning up start menu shortcut...");
-        CInstallHelper::RemoveStartMenuShortcut(APP_NAME);
+        CInstallHelper::RemoveStartMenuShortcut(APP_PRODUCT_NAME);
     }
     
     // 删除安装文件
