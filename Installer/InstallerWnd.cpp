@@ -708,7 +708,7 @@ void CInstallerWnd::DoInstall()
         // 写入注册表
         UpdateProgress(90, L"progress_writing_registry");
         std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
-        if (CInstallHelper::WriteUninstallRegistry(APP_NAME, APP_PRODUCT_NAME, APP_VERSION, APP_PUBLISHER,
+        if (CInstallHelper::WriteUninstallRegistry(APP_REGISTRY_KEYS, APP_PRODUCT_NAME, APP_VERSION, APP_PUBLISHER,
             m_strInstallPath, uninstallPath, exePath, m_totalBytes))
         {
             m_currentStep = STEP_REGISTRY_WRITTEN;
@@ -766,7 +766,7 @@ void CInstallerWnd::RollbackInstallation()
     if (m_registryWritten)
     {
         CLogger::GetInstance()->LogInfo(L"Cleaning up registry...");
-        CInstallHelper::RemoveUninstallRegistry(APP_NAME);
+        CInstallHelper::RemoveUninstallRegistry(APP_REGISTRY_KEYS);
     }
     
     // 删除桌面快捷方式

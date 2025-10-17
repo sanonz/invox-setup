@@ -276,7 +276,7 @@ bool CInstallHelper::CreateStartMenuShortcut(const std::wstring& targetPath, con
     return SUCCEEDED(hr);
 }
 
-bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
+bool CInstallHelper::WriteUninstallRegistry(const std::wstring& keys,
     const std::wstring& appProductName,
     const std::wstring& version,
     const std::wstring& publisher,
@@ -285,7 +285,7 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     const std::wstring& iconPath,
     UINT64 estimatedSize)
 {
-    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + appName;
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + keys;
     
     HKEY hKey = NULL;
     LONG lResult = RegCreateKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, NULL,
@@ -347,9 +347,9 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& appName,
     return false;
 }
 
-bool CInstallHelper::RemoveUninstallRegistry(const std::wstring& appName)
+bool CInstallHelper::RemoveUninstallRegistry(const std::wstring& keys)
 {
-    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + appName;
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + keys;
     
     LONG lResult = RegDeleteKey(HKEY_LOCAL_MACHINE, regPath.c_str());
     if (lResult != ERROR_SUCCESS)

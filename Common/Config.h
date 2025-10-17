@@ -24,6 +24,7 @@
 
 // 安装包文件
 #define APP_ARCHIVE        L"app.7z"
+#define APP_REGISTRY_KEYS  L"InvoxApp"
 
 // 注册表路径
 #define REG_UNINSTALL_PATH L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"

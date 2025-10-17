@@ -45,7 +45,7 @@ public:
     static bool CreateStartMenuShortcut(const std::wstring& targetPath, const std::wstring& shortcutName, const std::wstring& folderName = L"");
     
     // 写入注册表卸载信息
-    static bool WriteUninstallRegistry(const std::wstring& appName, 
+    static bool WriteUninstallRegistry(const std::wstring& keys, 
         const std::wstring& appProductName,
         const std::wstring& version,
         const std::wstring& publisher,
@@ -55,7 +55,7 @@ public:
         UINT64 estimatedSize);
     
     // 删除注册表卸载信息
-    static bool RemoveUninstallRegistry(const std::wstring& appName);
+    static bool RemoveUninstallRegistry(const std::wstring& keys);
     
     // 删除开始菜单快捷方式
     static bool RemoveStartMenuShortcut(const std::wstring& shortcutName, const std::wstring& folderName = L"");

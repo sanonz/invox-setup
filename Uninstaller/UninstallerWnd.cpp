@@ -399,7 +399,7 @@ void CUninstallerWnd::DoUninstall()
         
         // 删除注册表
         UpdateProgress(90, L"progress_cleaning_registry");
-        if (CInstallHelper::RemoveUninstallRegistry(APP_NAME))
+        if (CInstallHelper::RemoveUninstallRegistry(APP_REGISTRY_KEYS))
         {
             CLogger::GetInstance()->LogInfo(L"Registry cleaned up successfully");
         }
