@@ -180,7 +180,7 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
                 
                 CLogger::GetInstance()->LogInfo(L"Program will exit");
             }
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         else if (strName == _T("minbtn"))
         {
@@ -195,7 +195,7 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
         else if (strName == _T("goodbye_btn"))
         {
             SelfDelete();
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         else
         {
@@ -203,6 +203,14 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
             HandleRelatedControlClick(msg.pSender);
         }
     }
+}
+
+LRESULT CUninstallerWnd::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &bHandled)
+{
+    bHandled = FALSE;
+    // 退出程序
+    PostQuitMessage(0);
+    return 0;
 }
 
 LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -237,7 +245,7 @@ LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         else
         {
             CMsgWnd::Alert(m_hWnd, L"uninstall_failed_message");
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         
         m_bUninstalling = false;

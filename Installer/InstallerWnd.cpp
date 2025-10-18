@@ -199,7 +199,7 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
                 
                 CLogger::GetInstance()->LogInfo(L"Rollback completed, program will exit");
             }
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         else if (strName == _T("minbtn"))
         {
@@ -231,7 +231,7 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         else if (strName == _T("launch_btn"))
         {
             LaunchApplication();
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         else
         {
@@ -282,6 +282,14 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
     }
 }
 
+LRESULT CInstallerWnd::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &bHandled)
+{
+    bHandled = FALSE;
+    // 退出程序
+    PostQuitMessage(0);
+    return 0;
+}
+
 LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if (uMsg == WM_INSTALL_PROGRESS)
@@ -314,7 +322,7 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         else
         {
             CMsgWnd::Confirm(m_hWnd, L"msgbox_install_failed_message");
-            Close();
+            ::DestroyWindow(m_hWnd);
         }
         
         m_bInstalling = false;
@@ -605,7 +613,7 @@ void CInstallerWnd::DoInstall()
             UpdateProgress(0, L"progress_disk_full");
             CLogger::GetInstance()->LogError(L"Disk full");
             Sleep(3000);
-            extractor->Close();
+            extractor->::DestroyWindow(m_hWnd);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
