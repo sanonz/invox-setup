@@ -32,6 +32,6 @@
   <Text id="msgbox_title" value="提示信息" />
   <Text id="msgbox_confirm" value="确认" />
   <Text id="msgbox_cancel" value="取消" />
-  <Text id="msgbox_confirm_exit_message" value="卸载正在进行中，确定要退出吗？{\n}{\n}警告：强制退出可能导致：{\n}• 部分文件未完全删除{\n}• 注册表残留{\n}• 快捷方式未清理{\n}{\n}建议等待卸载完成。是否仍要退出？" />
+  <Text id="msgbox_confirm_exit_message" value="卸载正在进行中，确定要退出吗？{\n}{\n}警告：强制退出可能导致：{\n}• 部分文件未完全删除{\n}• 注册表残留             {\n}• 快捷方式未清理       {\n}{\n}建议等待卸载完成。是否仍要退出？" />
   <Text id="failed_message" value="卸载失败！" />
 </Res>
