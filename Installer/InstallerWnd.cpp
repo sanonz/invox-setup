@@ -169,7 +169,7 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bInstalling)
             {
-                if(MSGID_OK == CMsgWnd::MessageBox(m_hWnd, 
+                if(MSGID_OK == CMsgWnd::Confirm(m_hWnd, 
                     GetLocalizedText(L"msgbox_title").c_str(),
                     GetLocalizedText(L"msgbox_confirm_exit_message").c_str()))
                 {
@@ -315,7 +315,7 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            CMsgWnd::MessageBox(m_hWnd, 
+            CMsgWnd::Confirm(m_hWnd, 
                     GetLocalizedText(L"msgbox_title").c_str(),
                     GetLocalizedText(L"msgbox_install_failed_message").c_str());
             Close();

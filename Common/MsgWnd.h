@@ -18,6 +18,31 @@ public:
     return pWnd->ShowModal();
   }
 
+  static int Confirm(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg, 
+                     LPCTSTR lpstrConfirmText = NULL, LPCTSTR lpstrCancelText = NULL)
+  {
+    CMsgWnd *pWnd = new CMsgWnd();
+    pWnd->Create(hParent, _T("msgwnd"), WS_POPUP | WS_CLIPCHILDREN, WS_EX_TOOLWINDOW);
+    pWnd->CenterWindow();
+    pWnd->SetTitle(lpstrTitle);
+    pWnd->SetMsg(lpstrMsg);
+    pWnd->SetButtonText(lpstrConfirmText, lpstrCancelText);
+    return pWnd->ShowModal();
+  }
+
+  static void Alert(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg, 
+                    LPCTSTR lpstrConfirmText = NULL)
+  {
+    CMsgWnd *pWnd = new CMsgWnd();
+    pWnd->Create(hParent, _T("msgwnd"), WS_POPUP | WS_CLIPCHILDREN, WS_EX_TOOLWINDOW);
+    pWnd->CenterWindow();
+    pWnd->SetTitle(lpstrTitle);
+    pWnd->SetMsg(lpstrMsg);
+    pWnd->SetButtonText(lpstrConfirmText, NULL);
+    pWnd->HideCancelButton();
+    pWnd->ShowModal();
+  }
+
   static void ShowMessageBox(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg)
   {
     CMsgWnd *pWnd = new CMsgWnd();
@@ -35,6 +60,8 @@ public:
   void SetMsg(LPCTSTR lpstrMsg);
   void SetTitle(LPCTSTR lpstrTitle);
   void AdjustWindowHeight(CLabelUI *pText);
+  void HideCancelButton();
+  void SetButtonText(LPCTSTR lpstrConfirmText, LPCTSTR lpstrCancelText);
 
 public:
   virtual void OnFinalMessage(HWND);

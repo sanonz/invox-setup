@@ -109,6 +109,38 @@ void CMsgWnd::AdjustWindowHeight(CLabelUI *pText)
     CenterWindow();
 }
 
+void CMsgWnd::HideCancelButton()
+{
+    CButtonUI *pCancelBtn = static_cast<CButtonUI *>(m_pm.FindControl(_T("cancel_btn")));
+    if (pCancelBtn)
+    {
+        pCancelBtn->SetVisible(false);
+    }
+}
+
+void CMsgWnd::SetButtonText(LPCTSTR lpstrConfirmText, LPCTSTR lpstrCancelText)
+{
+    // 设置确认按钮文本
+    if (lpstrConfirmText != NULL && lstrlen(lpstrConfirmText) > 0)
+    {
+        CButtonUI *pConfirmBtn = static_cast<CButtonUI *>(m_pm.FindControl(_T("confirm_btn")));
+        if (pConfirmBtn)
+        {
+            pConfirmBtn->SetText(lpstrConfirmText);
+        }
+    }
+
+    // 设置取消按钮文本
+    if (lpstrCancelText != NULL && lstrlen(lpstrCancelText) > 0)
+    {
+        CButtonUI *pCancelBtn = static_cast<CButtonUI *>(m_pm.FindControl(_T("cancel_btn")));
+        if (pCancelBtn)
+        {
+            pCancelBtn->SetText(lpstrCancelText);
+        }
+    }
+}
+
 void CMsgWnd::OnFinalMessage(HWND hWnd)
 {
     __super::OnFinalMessage(hWnd);
