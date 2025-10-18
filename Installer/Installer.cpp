@@ -19,6 +19,7 @@ void InitResource()
         strResourcePath = strResourcePath.Left(strResourcePath.GetLength() - 4);
         strResourcePath += _T("Installer\\Res\\");
         CPaintManagerUI::SetResourcePath(strResourcePath.GetData());
+        CResourceManager::GetInstance()->LoadResource(_T("res.xml"), NULL);
         break;
     }
     case UILIB_RESOURCE:
@@ -27,6 +28,7 @@ void InitResource()
         strResourcePath = strResourcePath.Left(strResourcePath.GetLength() - 4);
         strResourcePath += _T("Installer\\Res\\");
         CPaintManagerUI::SetResourcePath(strResourcePath.GetData());
+        CResourceManager::GetInstance()->LoadResource(_T("res.xml"), NULL);
         break;
     }
     case UILIB_ZIP:
@@ -36,6 +38,7 @@ void InitResource()
         strResourcePath += _T("Installer\\Res\\");
         CPaintManagerUI::SetResourcePath(strResourcePath.GetData());
         CPaintManagerUI::SetResourceZip(_T("resources.zip"), true);
+        CResourceManager::GetInstance()->LoadResource(_T("res.xml"), NULL);
         break;
     }
     case UILIB_ZIPRESOURCE:
@@ -50,7 +53,8 @@ void InitResource()
                 dwSize = ::SizeofResource(CPaintManagerUI::GetResourceDll(), hResource);
                 if (dwSize > 0)
                 {
-                    CPaintManagerUI::SetResourceZip((LPBYTE)::LockResource(hGlobal), dwSize, _T("323232"));
+                    CPaintManagerUI::SetResourceZip((LPBYTE)::LockResource(hGlobal), dwSize, NULL);
+                    CResourceManager::GetInstance()->LoadResource(_T("res.xml"), NULL);
                 }
             }
             ::FreeResource(hGlobal);
@@ -64,13 +68,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 {
     // 创建全局命名互斥体，防止多实例运行
     // 使用 Global\ 前缀使其在所有会话中可见
-    HANDLE hMutex = ::CreateMutex(NULL, TRUE, _T("Global\\") APP_NAME _T("_Invox_Installer_SingleInstance"));
+    HANDLE hMutex = ::CreateMutex(NULL, TRUE, _T("Global\\") APP_NAME _T("_Installer_SingleInstance"));
     DWORD dwError = ::GetLastError();
     
     if (dwError == ERROR_ALREADY_EXISTS)
     {
         // 已经有一个安装程序实例在运行，通过窗口类名查找并激活已存在的窗口
-        HWND hExistingWnd = ::FindWindow(_T("InvoxInstallerWindow"), NULL);
+        HWND hExistingWnd = ::FindWindow(APP_NAME _T("InstallerWindow"), NULL);
         if (hExistingWnd != NULL)
         {
             // 如果窗口最小化，先恢复

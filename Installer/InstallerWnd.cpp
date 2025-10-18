@@ -4,6 +4,7 @@
 #include "..\Common\Config.h"
 #include "..\Common\InstallHelper.h"
 #include "..\Common\Analytics.h"
+#include "..\Common\MsgWnd.h"
 #include "..\Common\Logger.h"
 #include <shlobj.h>
 #include <shellapi.h>
@@ -52,12 +53,12 @@ CInstallerWnd::~CInstallerWnd()
 
 CDuiString CInstallerWnd::GetSkinFile()
 {
-    return _T("installer.xml");
+    return _T("XML_INSTALLER");
 }
 
 LPCTSTR CInstallerWnd::GetWindowClassName() const
 {
-    return _T("InvoxInstallerWindow");
+    return APP_NAME _T("InstallerWindow");
 }
 
 LRESULT CInstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -168,10 +169,9 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bInstalling)
             {
-                std::wstring confirmMsg = GetLocalizedText(L"msgbox_confirm_exit_message");
-                std::wstring confirmTitle = GetLocalizedText(L"msgbox_confirm_exit_title");
-                if (MessageBox(m_hWnd, confirmMsg.c_str(), 
-                    confirmTitle.c_str(), MB_YESNO | MB_ICONWARNING) != IDYES)
+                if(MSGID_OK == CMsgWnd::MessageBox(m_hWnd, 
+                    GetLocalizedText(L"msgbox_title").c_str(),
+                    GetLocalizedText(L"msgbox_confirm_exit_message").c_str()))
                 {
                     return;
                 }
@@ -315,9 +315,9 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            std::wstring failedMsg = GetLocalizedText(L"msgbox_install_failed_message");
-            std::wstring failedTitle = GetLocalizedText(L"msgbox_install_failed_title");
-            MessageBox(m_hWnd, failedMsg.c_str(), failedTitle.c_str(), MB_OK | MB_ICONERROR);
+            CMsgWnd::MessageBox(m_hWnd, 
+                    GetLocalizedText(L"msgbox_title").c_str(),
+                    GetLocalizedText(L"msgbox_install_failed_message").c_str());
             Close();
         }
         

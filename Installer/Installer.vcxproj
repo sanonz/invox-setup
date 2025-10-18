@@ -177,7 +177,7 @@
     </Link>
     <Bscmake />
     <Manifest>
-      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+      <EnableDpiAwareness>false</EnableDpiAwareness>
     </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -258,6 +258,7 @@
     <ClInclude Include="..\Common\Config.h" />
     <ClInclude Include="..\Common\Analytics.h" />
     <ClInclude Include="..\Common\InstallHelper.h" />
+    <ClInclude Include="..\Common\MsgWnd.h" />
     <ClInclude Include="..\Common\Logger.h" />
     <ClInclude Include="7zTypes.h" />
     <ClInclude Include="7zExtractor.h" />
@@ -268,6 +269,7 @@
   <ItemGroup>
     <ClCompile Include="..\Common\Analytics.cpp" />
     <ClCompile Include="..\Common\InstallHelper.cpp" />
+    <ClCompile Include="..\Common\MsgWnd.cpp" />
     <ClCompile Include="..\Common\Logger.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -287,11 +289,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\bin\skin\installer\lan_cn.xml" />
-    <None Include="..\..\bin\skin\installer\lan_en.xml" />
-    <None Include="..\..\bin\skin\installer\installer.xml">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Flash11.tlb" />
     <None Include="Res\installer.ico" />
     <None Include="Res\installer.zip" />

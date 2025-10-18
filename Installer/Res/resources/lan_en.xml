@@ -42,9 +42,10 @@
   <Text id="progress_extracting_with_percent" value="Extracting files... %d%%" />
   
   <!-- Message box messages -->
-  <Text id="msgbox_confirm_exit_title" value="Confirm" />
-  <Text id="msgbox_confirm_exit_message" value="Installation is in progress. Are you sure you want to exit?\nAll installed content will be rolled back." />
-  <Text id="msgbox_install_failed_title" value="Error" />
+  <Text id="msgbox_title" value="Alert" />
+  <Text id="msgbox_confirm" value="Confirm" />
+  <Text id="msgbox_cancel" value="Cancel" />
+  <Text id="msgbox_confirm_exit_message" value="Installation is in progress. Are you sure you want to exit?{\n}All installed content will be rolled back." />
   <Text id="msgbox_install_failed_message" value="Installation failed!" />
   <Text id="msgbox_browse_folder_title" value="Please select installation directory" />
 </Res>

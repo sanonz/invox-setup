@@ -38,7 +38,7 @@
 		<VerticalLayout name="page1">
 			<!--	Logo	-->
 			<VerticalLayout childalign="center" childvalign="bottom">
-				<Control width="80" height="80" bkimage="images\logo.png" />
+				<Control width="80" height="80" bkimage="IMG_LOGO" />
 				<Label height="40" text="welcome_text" resourcetext="true" font="2" align="center" />
 			</VerticalLayout>
 			<!--	安装按钮	-->
@@ -59,7 +59,7 @@
 		<VerticalLayout name="page2" visible="false">
 			<!--	Logo	-->
 			<VerticalLayout height="180" childalign="center" childvalign="vcenter" bkcolor="#FFFB2C36">
-				<Control width="80" height="80" bkimage="images\logo.png" />
+				<Control width="80" height="80" bkimage="IMG_LOGO" />
 				<Label text="welcome_text" resourcetext="true" font="2" align="center" height="40" />
 			</VerticalLayout>
 			<VerticalLayout padding="30,0,30,0">

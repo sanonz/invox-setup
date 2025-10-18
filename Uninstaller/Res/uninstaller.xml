@@ -38,7 +38,7 @@
 		<VerticalLayout name="page1" padding="30,30,30,30" visible="true">
 			<!--	Logo	-->
 			<VerticalLayout childalign="center" childvalign="vcenter">
-				<Control width="80" height="80" bkimage="images\logo.png" />
+				<Control width="80" height="80" bkimage="IMG_LOGO" />
 				<Label height="40" text="welcome_text" resourcetext="true" font="2" align="center" />
 			</VerticalLayout>
 			<VerticalLayout height="200">
@@ -75,7 +75,7 @@
 		<VerticalLayout name="page2" padding="30, 30, 30, 30" visible="false">
 			<!--	Logo	-->
 			<VerticalLayout childalign="center" childvalign="vcenter">
-				<Control width="80" height="80" bkimage="images\logo.png" />
+				<Control width="80" height="80" bkimage="IMG_LOGO" />
 				<Label height="40" text="welcome_text" resourcetext="true" font="2" align="center" />
 			</VerticalLayout>
 			<!-- 进度条和进度文本	-->
@@ -89,7 +89,7 @@
 		<VerticalLayout name="page3" padding="30,30,30,30" visible="false">
 			<!--	Logo	-->
 			<VerticalLayout childalign="center" childvalign="vcenter">
-				<Control width="80" height="80" bkimage="images\logo.png" />
+				<Control width="80" height="80" bkimage="IMG_LOGO" />
 				<Label height="40" text="welcome_text" resourcetext="true" font="2" align="center" />
 			</VerticalLayout>
 			<!-- 完成文本	-->

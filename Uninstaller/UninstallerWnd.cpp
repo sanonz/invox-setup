@@ -3,6 +3,7 @@
 #include "..\Common\Config.h"
 #include "..\Common\InstallHelper.h"
 #include "..\Common\Analytics.h"
+#include "..\Common\MsgWnd.h"
 #include "..\Common\Logger.h"
 #include <shlobj.h>
 #include <vector>
@@ -61,12 +62,12 @@ CUninstallerWnd::~CUninstallerWnd()
 
 CDuiString CUninstallerWnd::GetSkinFile()
 {
-    return _T("uninstaller.xml");
+    return _T("XML_UNINSTALLER");
 }
 
 LPCTSTR CUninstallerWnd::GetWindowClassName() const
 {
-    return _T("InvoxUninstallerWindow");
+    return APP_NAME _T("UninstallerWindow");
 }
 
 LRESULT CUninstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -84,6 +85,10 @@ LRESULT CUninstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 void CUninstallerWnd::InitWindow()
 {
+    // 获取系统 DPI
+    int sysDPI =  GetDeviceCaps(m_pm.GetPaintDC(), LOGPIXELSX);
+    m_pm.SetAllDPI(sysDPI);
+    
     // 获取页面容器
     m_pPage1 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page1")));
     m_pPage2 = static_cast<CContainerUI*>(m_pm.FindControl(_T("page2")));
@@ -147,10 +152,9 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bUninstalling)
             {
-                if (MessageBox(m_hWnd, 
-                    GetLocalizedText(L"uninstall_confirm_exit_message").c_str(), 
-                    GetLocalizedText(L"uninstall_confirm_exit_title").c_str(), 
-                    MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) != IDYES)
+                if(MSGID_CANCEL == CMsgWnd::MessageBox(m_hWnd, 
+                    GetLocalizedText(L"msgbox_title").c_str(),
+                    GetLocalizedText(L"confirm_exit_message").c_str()))
                 {
                     return;
                 }
@@ -235,7 +239,7 @@ LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         else
         {
             MessageBox(m_hWnd, GetLocalizedText(L"uninstall_failed_message").c_str(), 
-                GetLocalizedText(L"uninstall_failed_title").c_str(), MB_OK | MB_ICONERROR);
+                GetLocalizedText(L"uninstall_alert_title").c_str(), MB_OK | MB_ICONERROR);
             Close();
         }
         

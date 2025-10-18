@@ -255,6 +255,7 @@
     <ClInclude Include="..\Common\Config.h" />
     <ClInclude Include="..\Common\Analytics.h" />
     <ClInclude Include="..\Common\InstallHelper.h" />
+    <ClInclude Include="..\Common\MsgWnd.h" />
     <ClInclude Include="..\Common\Logger.h" />
     <ClInclude Include="UninstallerWnd.h" />
     <ClInclude Include="StdAfx.h" />
@@ -262,6 +263,7 @@
   <ItemGroup>
     <ClCompile Include="..\Common\Analytics.cpp" />
     <ClCompile Include="..\Common\InstallHelper.cpp" />
+    <ClCompile Include="..\Common\MsgWnd.cpp" />
     <ClCompile Include="..\Common\Logger.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -279,11 +281,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\bin\skin\uninstaller\lan_cn.xml" />
-    <None Include="..\..\bin\skin\uninstaller\lan_en.xml" />
-    <None Include="..\..\bin\skin\uninstaller\uninstaller.xml">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Flash11.tlb" />
     <None Include="Res\uninstaller.ico" />
     <None Include="Res\uninstaller.zip" />
