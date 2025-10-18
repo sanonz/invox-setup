@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "..\DuiLib\UIlib.h"
 
 //////////////////////////////////////////////////////////////////////////
 ///
@@ -8,7 +9,7 @@
 class CMsgWnd : public WindowImplBase
 {
 public:
-  static int MessageBox(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg)
+  static int MessageBox(HWND hParent, LPCTSTR lpstrMsg, LPCTSTR lpstrTitle = NULL)
   {
     CMsgWnd *pWnd = new CMsgWnd();
     pWnd->Create(hParent, _T("msgwnd"), WS_POPUP | WS_CLIPCHILDREN, WS_EX_TOOLWINDOW);
@@ -18,7 +19,7 @@ public:
     return pWnd->ShowModal();
   }
 
-  static int Confirm(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg, 
+  static int Confirm(HWND hParent, LPCTSTR lpstrMsg, LPCTSTR lpstrTitle = NULL,
                      LPCTSTR lpstrConfirmText = NULL, LPCTSTR lpstrCancelText = NULL)
   {
     CMsgWnd *pWnd = new CMsgWnd();
@@ -30,7 +31,7 @@ public:
     return pWnd->ShowModal();
   }
 
-  static void Alert(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg, 
+  static void Alert(HWND hParent, LPCTSTR lpstrMsg, LPCTSTR lpstrTitle = NULL,
                     LPCTSTR lpstrConfirmText = NULL)
   {
     CMsgWnd *pWnd = new CMsgWnd();
@@ -43,7 +44,7 @@ public:
     pWnd->ShowModal();
   }
 
-  static void ShowMessageBox(HWND hParent, LPCTSTR lpstrTitle, LPCTSTR lpstrMsg)
+  static void ShowMessageBox(HWND hParent, LPCTSTR lpstrMsg, LPCTSTR lpstrTitle = NULL)
   {
     CMsgWnd *pWnd = new CMsgWnd();
     pWnd->Create(hParent, _T("msgwnd"), UI_WNDSTYLE_FRAME, 0);

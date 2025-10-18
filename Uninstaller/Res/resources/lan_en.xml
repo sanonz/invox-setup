@@ -32,6 +32,6 @@
   <Text id="msgbox_title" value="Alert" />
   <Text id="msgbox_confirm" value="Confirm" />
   <Text id="msgbox_cancel" value="Cancel" />
-  <Text id="confirm_exit_message" value="Uninstallation is in progress, are you sure you want to exit?{\n}\nWarning: Force exit may cause:{\n}• Some files not completely deleted{\n}• Registry residue{\n}• Shortcuts not cleaned{\n}{\n}It is recommended to wait for uninstallation to complete. Do you still want to exit?" />
+  <Text id="msgbox_confirm_exit_message" value="Uninstallation is in progress, are you sure you want to exit?{\n}\nWarning: Force exit may cause:{\n}• Some files not completely deleted{\n}• Registry residue{\n}• Shortcuts not cleaned{\n}{\n}It is recommended to wait for uninstallation to complete. Do you still want to exit?" />
   <Text id="failed_message" value="Uninstallation failed!" />
 </Res>

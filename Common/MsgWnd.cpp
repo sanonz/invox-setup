@@ -34,7 +34,11 @@ void CMsgWnd::SetMsg(LPCTSTR lpstrMsg)
     CLabelUI *pText = static_cast<CLabelUI *>(m_pm.FindControl(_T("message_text")));
     if (pText)
     {
-        pText->SetText(lpstrMsg);
+        if (pText->IsResourceText()) {
+            pText->SetText(CResourceManager::GetInstance()->GetText(lpstrMsg));
+        } else {
+            pText->SetText(lpstrMsg);
+        }
         // 设置文本后调整窗口高度
         AdjustWindowHeight(pText);
     }

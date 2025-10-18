@@ -152,9 +152,7 @@ void CUninstallerWnd::Notify(TNotifyUI& msg)
         {
             if (m_bUninstalling)
             {
-                if(MSGID_CANCEL == CMsgWnd::Confirm(m_hWnd, 
-                    GetLocalizedText(L"msgbox_title").c_str(),
-                    GetLocalizedText(L"confirm_exit_message").c_str()))
+                if(MSGID_CANCEL == CMsgWnd::Confirm(m_hWnd, L"msgbox_confirm_exit_message"))
                 {
                     return;
                 }
@@ -238,8 +236,7 @@ LRESULT CUninstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            CMsgWnd::Alert(m_hWnd, GetLocalizedText(L"uninstall_failed_message").c_str(), 
-                           GetLocalizedText(L"uninstall_alert_title").c_str());
+            CMsgWnd::Alert(m_hWnd, L"uninstall_failed_message");
             Close();
         }
         
