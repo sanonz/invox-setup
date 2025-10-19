@@ -34,6 +34,9 @@ namespace DuiLib
 		void SetSelectedBkColor(DWORD dwBkColor);
 		DWORD GetSelectBkColor();
 
+		void SetSelectedBorderColor(DWORD dwBorderColor);
+		DWORD GetSelectedBorderColor();
+
 		LPCTSTR GetSelectedForedImage();
 		void SetSelectedForedImage(LPCTSTR pStrImage);
 
@@ -59,6 +62,7 @@ namespace DuiLib
 		void PaintStatusImage(HDC hDC);
 		void PaintForeImage(HDC hDC);
 		void PaintText(HDC hDC);
+		void PaintBorder(HDC hDC);
 
 	protected:
 		bool			m_bSelected;
@@ -69,6 +73,7 @@ namespace DuiLib
 
 		DWORD			m_dwSelectedBkColor;
 		DWORD			m_dwSelectedTextColor;
+		DWORD			m_dwSelectedBorderColor;
 
 		CDuiString		m_sSelectedImage;
 		CDuiString		m_sSelectedHotImage;

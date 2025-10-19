@@ -4,7 +4,7 @@
 namespace DuiLib
 {
 	IMPLEMENT_DUICONTROL(COptionUI)
-	COptionUI::COptionUI() : m_bSelected(false) ,m_iSelectedFont(-1), m_dwSelectedTextColor(0), m_dwSelectedBkColor(0), m_nSelectedStateCount(0)
+	COptionUI::COptionUI() : m_bSelected(false) ,m_iSelectedFont(-1), m_dwSelectedTextColor(0), m_dwSelectedBkColor(0), m_dwSelectedBorderColor(0), m_nSelectedStateCount(0)
 	{
 	}
 
@@ -184,6 +184,17 @@ namespace DuiLib
 		return m_dwSelectedBkColor;
 	}
 
+	void COptionUI::SetSelectedBorderColor(DWORD dwBorderColor)
+	{
+		m_dwSelectedBorderColor = dwBorderColor;
+		Invalidate();
+	}
+
+	DWORD COptionUI::GetSelectedBorderColor()
+	{
+		return m_dwSelectedBorderColor;
+	}
+
 	LPCTSTR COptionUI::GetSelectedForedImage()
 	{
 		return m_sSelectedForeImage;
@@ -242,6 +253,12 @@ namespace DuiLib
 			LPTSTR pstr = NULL;
 			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
 			SetSelectedBkColor(clrColor);
+		}
+		else if( _tcsicmp(pstrName, _T("selectedbordercolor")) == 0 ) {
+			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
+			LPTSTR pstr = NULL;
+			DWORD clrColor = _tcstoul(pstrValue, &pstr, 16);
+			SetSelectedBorderColor(clrColor);
 		}
 		else if( _tcsicmp(pstrName, _T("selectedtextcolor")) == 0 ) {
 			if( *pstrValue == _T('#')) pstrValue = ::CharNext(pstrValue);
@@ -371,6 +388,22 @@ namespace DuiLib
 		}
 		else
 			CButtonUI::PaintText(hDC);
+	}
+
+	void COptionUI::PaintBorder(HDC hDC)
+	{
+		// 如果选中且设置了选中边框颜色，使用选中边框颜色
+		if (IsSelected() && m_dwSelectedBorderColor != 0) {
+			if (m_nBorderSize > 0 || m_rcBorderSize.left > 0 || m_rcBorderSize.top > 0 || 
+				m_rcBorderSize.right > 0 || m_rcBorderSize.bottom > 0) {
+				DrawBorder(hDC, m_rcItem, GetAdjustColor(m_dwSelectedBorderColor), 
+					m_nBorderSize, m_rcBorderSize, m_cxyBorderRound, m_nBorderStyle);
+				return;
+			}
+		}
+		
+		// 否则使用父类的边框绘制逻辑
+		CButtonUI::PaintBorder(hDC);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
