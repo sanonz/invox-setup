@@ -45,6 +45,17 @@ void CLogger::SetLogFile(const std::wstring& logFilePath)
     }
 }
 
+void CLogger::Close()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    if (m_logFile.is_open())
+    {
+        m_logFile << L"==================== Log Closed ====================" << std::endl;
+        m_logFile.close();
+    }
+}
+
 void CLogger::Log(LogLevel level, const std::wstring& message)
 {
     std::lock_guard<std::mutex> lock(m_mutex);

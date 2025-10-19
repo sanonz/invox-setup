@@ -473,6 +473,9 @@ std::wstring CUninstallerWnd::GetFeedback()
 
 void CUninstallerWnd::SelfDelete()
 {
+    // 在删除前关闭日志文件句柄
+    CLogger::GetInstance()->Close();
+    
     // 获取当前程序路径
     WCHAR szModulePath[MAX_PATH] = { 0 };
     GetModuleFileName(NULL, szModulePath, MAX_PATH);
@@ -598,4 +601,3 @@ void CUninstallerWnd::CollectFilesAndDirectories(const std::wstring& rootPath,
     
     FindClose(hFind);
 }
-

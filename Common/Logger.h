@@ -30,6 +30,9 @@ public:
     // 格式化日志
     void LogFormat(LogLevel level, const wchar_t* format, ...);
     
+    // 关闭日志文件
+    void Close();
+    
 private:
     CLogger();
     ~CLogger();
