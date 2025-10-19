@@ -103,7 +103,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<APP_REGIS
 
 ### Analytics 类
 
-提供了 HTTP POST 方式上报数据到服务器的功能。
+提供了 HTTP POST 方式上报数据到服务器的功能，上报超时默认 6s
 
 ### 公共参数
 

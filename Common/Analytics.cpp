@@ -107,9 +107,15 @@ bool CAnalytics::PostData(const std::wstring& url, const std::string& postData)
     try
     {
         // 初始化 WinINet
-        hInternet = InternetOpen(L"InstallerAnalytics/1.0", 
+        hInternet = InternetOpen(L"InvoxSetupAnalytics/1.0", 
             INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
         if (!hInternet) return false;
+
+        // 设置超时
+        DWORD dwTimeout = 6000;
+        InternetSetOption(hInternet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
+        InternetSetOption(hInternet, INTERNET_OPTION_SEND_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
+        InternetSetOption(hInternet, INTERNET_OPTION_RECEIVE_TIMEOUT, &dwTimeout, sizeof(dwTimeout));
 
         // 解析 URL
         URL_COMPONENTS urlComp = { 0 };
