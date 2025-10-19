@@ -28,7 +28,7 @@ CUninstallerWnd::CUninstallerWnd()
     , m_bUninstalling(false)
 {
     // 从注册表读取安装路径
-    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + APP_NAME;
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + APP_REGISTRY_KEYS;
     
     HKEY hKey = NULL;
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey) == ERROR_SUCCESS ||
