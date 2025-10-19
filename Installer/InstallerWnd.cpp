@@ -613,7 +613,7 @@ void CInstallerWnd::DoInstall()
             UpdateProgress(0, L"progress_disk_full");
             CLogger::GetInstance()->LogError(L"Disk full");
             Sleep(3000);
-            extractor->::DestroyWindow(m_hWnd);
+            extractor->Close();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
