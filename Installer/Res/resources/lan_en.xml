@@ -45,6 +45,9 @@
   <Text id="msgbox_title" value="Alert" />
   <Text id="msgbox_confirm" value="Confirm" />
   <Text id="msgbox_cancel" value="Cancel" />
+  <Text id="msgbox_install_path_overwrite_message" value="Installation path already exists. Do you want to overwrite it?" />
+  <Text id="msgbox_install_path_overwrite_confirm" value="Overwrite" />
+  <Text id="msgbox_install_path_overwrite_cancel" value="Reselect" />
   <Text id="msgbox_confirm_exit_message" value="Installation is in progress. Are you sure you want to exit?{\n}All installed content will be rolled back." />
   <Text id="msgbox_install_failed_message" value="Installation failed!" />
   <Text id="msgbox_browse_folder_title" value="Please select installation directory" />

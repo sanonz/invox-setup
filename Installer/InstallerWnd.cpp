@@ -388,7 +388,25 @@ void CInstallerWnd::BrowseInstallPath()
 void CInstallerWnd::StartInstall()
 {
     // 确保路径以应用名称结尾
-    m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
+    // m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
+
+    // 检查安装路径是否已存在
+    if (PathFileExists(m_strInstallPath.c_str()))
+    {
+        // 如果用户选择取消，则返回不进行安装
+        if (MSGID_OK != CMsgWnd::Confirm(
+            m_hWnd, 
+            L"msgbox_install_path_overwrite_message",
+            NULL,
+            GetLocalizedText(L"msgbox_install_path_overwrite_confirm").c_str(),
+            GetLocalizedText(L"msgbox_install_path_overwrite_cancel").c_str()))
+        {
+            CLogger::GetInstance()->LogInfo(L"User cancelled installation due to existing path");
+            return;
+        }
+        
+        CLogger::GetInstance()->LogInfo(L"User confirmed installation to existing path");
+    }
     
     // 切换到安装进度页面（第3页）
     SwitchToPage(3);

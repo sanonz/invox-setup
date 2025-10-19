@@ -45,6 +45,9 @@
   <Text id="msgbox_title" value="提示信息" />
   <Text id="msgbox_confirm" value="确认" />
   <Text id="msgbox_cancel" value="取消" />
+  <Text id="msgbox_install_path_overwrite_message" value="安装路径已存在，是否覆盖？" />
+  <Text id="msgbox_install_path_overwrite_confirm" value="覆盖安装" />
+  <Text id="msgbox_install_path_overwrite_cancel" value="重新选择" />
   <Text id="msgbox_confirm_exit_message" value="安装正在进行中，确定要退出吗？{\n}退出后将回滚所有已安装的内容。" />
   <Text id="msgbox_install_failed_message" value="安装失败！" />
   <Text id="msgbox_browse_folder_title" value="请选择安装目录" />
