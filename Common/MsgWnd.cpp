@@ -97,13 +97,13 @@ void CMsgWnd::AdjustWindowHeight(CLabelUI *pText)
     int nFooterHeight = pFooter ? pFooter->GetFixedHeight() : 0;
     
     // 计算新的窗口高度 = 标题栏 + 消息内容 + 页脚
-    int nMinTextHeight = 30; // 最小文本区域高度
+    int nMinTextHeight = 20; // 最小文本区域高度
     int nActualTextHeight = max(nTextHeight, nMinTextHeight);
     nActualTextHeight += rcContainerPadding.top + rcContainerPadding.bottom;
     int nNewWindowHeight = nTitleBarHeight + nActualTextHeight + nFooterHeight;
 
     // 限制窗口高度范围
-    int nMinWindowHeight = 180;
+    int nMinWindowHeight = 136;
     int nMaxWindowHeight = 600;
     nNewWindowHeight = max(nMinWindowHeight, min(nNewWindowHeight, nMaxWindowHeight));
 
