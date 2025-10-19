@@ -1,6 +1,6 @@
 # Invox Setup（安装/卸载器）
 
-本项目基于 DuiLib 框架开发，提供了功能完整的 Windows 应用安装/卸载解决方案。具有以下特点：
+本项目基于 DuiLib 的 UI 框架和 C++ 调用 Win32 API 开发，提供了功能完整的 Windows 应用安装/卸载解决方案。具有以下特点：
 
 - **轻量级**：整体体积仅 2MB+，无需额外依赖
 - **数据上报**：内置 Analytics 支持，可追踪安装/卸载行为
@@ -19,13 +19,14 @@
 ### 修改应用配置 (Config.h)
 
 ```cpp
-#define APP_NAME           L"InvvoxApp"       // 应用名称
-#define APP_PRODUCT_NAME   L"InvvoxApp"       // 产品名称
+#define APP_NAME           L"InvoxApp"        // 应用名称
+#define APP_PRODUCT_NAME   L"InvoxApp"        // 产品名称
 #define APP_VERSION        L"1.0.0"           // 应用版本
 #define APP_PUBLISHER      L"YourCompany"     // 发布者
-#define APP_EXE_NAME       L"InvvoxApp.exe"   // 主程序名
+#define APP_EXE_NAME       L"InvoxApp.exe"    // 主程序名
 #define APP_UNINSTALL_NAME L"Uninstaller.exe" // 卸载程序名
 #define APP_ARCHIVE        L"app.7z"          // 安装包文件名
+#define APP_REGISTRY_KEYS  L"InvoxApp"        // 注册表键
 #define PRIVACY_URL        L"https://..."     // 协议地址
 #define ANALYTICS_ENDPOINT L"https://..."     // 分析 API 端点
 ```
@@ -41,7 +42,7 @@
 
  - `Res/images/*`
  - `Res/resources/*`
- - `Res/installer.xml` / `Res/uninstaller.xml`
+ - `Res/*.xml` / `Res/*.xml`
 
 ### 国际化配置
 
@@ -78,13 +79,13 @@
 安装程序会在以下位置写入注册表：
 
 ```
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Uninstall\<APP_REGISTRY_KEYS>
 ```
 
 或
 
 ```
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<APP_REGISTRY_KEYS>
 ```
 
 包含以下键值：
@@ -93,6 +94,7 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
 - Publisher - 发布者
 - InstallLocation - 安装路径
 - UninstallString - 卸载命令
+- QuietUninstallString - 静默卸载命令
 - EstimatedSize - 估计大小（KB）
 - NoModify - 禁用修改
 - NoRepair - 禁用修复
@@ -102,6 +104,14 @@ HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<AppName>
 ### Analytics 类
 
 提供了 HTTP POST 方式上报数据到服务器的功能。
+
+### 公共参数
+
+- *device_id* - 设备唯一编号
+- *app_name* - 应用名称
+- *version* - 应用版本
+- *os_version* - 系统版本
+- *timestamp* - 上报时间戳
 
 #### 安装事件上报
 
@@ -116,9 +126,9 @@ CAnalytics::GetInstance()->ReportInstall(
 {
   "event_type": "install",
   "device_id": "{GUID}",
-  "app_name": "InvvoxApplication",
+  "app_name": "InvoxApplication",
   "version": "1.0.0",
-  "install_path": "C:\\Program Files\\InvvoxApplication",
+  "install_path": "C:\\Program Files\\InvoxApplication",
   "os_version": "Windows 10.0",
   "timestamp": "2025-10-11 12:30:45"
 }
@@ -138,7 +148,7 @@ CAnalytics::GetInstance()->ReportUninstall(
 {
   "event_type": "uninstall",
   "device_id": "{GUID}",
-  "app_name": "InvvoxApplication",
+  "app_name": "InvoxApplication",
   "version": "1.0.0",
   "reason": "不需要了",
   "feedback": "功能不符合需求",
