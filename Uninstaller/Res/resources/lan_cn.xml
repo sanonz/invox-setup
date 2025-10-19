@@ -12,7 +12,6 @@
   <Text id="progress_preparing" value="正在准备卸载..." />
   <Text id="progress_app_running" value="检测到应用程序正在运行，正在尝试关闭..." />
   <Text id="progress_app_close_failed" value="无法关闭应用程序，请手动关闭后重试！" />
-  <Text id="progress_reporting_analytics" value="正在上报卸载信息..." />
   <Text id="progress_calculating_size" value="正在计算文件大小..." />
   <Text id="progress_removing_shortcuts" value="正在删除快捷方式..." />
   <Text id="progress_removing_files" value="正在删除文件..." />

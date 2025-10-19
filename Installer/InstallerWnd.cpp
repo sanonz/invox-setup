@@ -321,7 +321,7 @@ LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            CMsgWnd::Confirm(m_hWnd, L"msgbox_install_failed_message");
+            CMsgWnd::Alert(m_hWnd, L"msgbox_install_failed_message");
             ::DestroyWindow(m_hWnd);
         }
         
@@ -437,16 +437,44 @@ void CInstallerWnd::DoInstall()
         
         // 更新进度：开始安装
         UpdateProgress(0, L"progress_preparing");
-        Sleep(500);
         
         // 检查目标程序是否正在运行
         if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
         {
             CLogger::GetInstance()->LogWarning(L"Target application is already running");
-            UpdateProgress(0, L"progress_app_running");
-            Sleep(3000);
-            ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
-            return;
+            if(MSGID_CANCEL == CMsgWnd::Confirm(m_hWnd, L"progress_app_running_confirm"))
+            {
+                CLogger::GetInstance()->LogError(L"User cancelled installation due to running application");
+                ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
+                return;
+            }
+            if (!CInstallHelper::KillProcess(APP_EXE_NAME, 5000))
+            {
+                CLogger::GetInstance()->LogError(L"Failed to close application");
+                UpdateProgress(0, L"progress_app_running");
+                Sleep(3000);
+                ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
+                return;
+            }
+            CLogger::GetInstance()->LogWarning(L"Application closed successfully");
+        }
+        
+        // 检测是否已安装
+        std::wstring installedPath;
+        std::wstring uninstallerPath;
+        if (IsApplicationInstalled(installedPath, uninstallerPath))
+        {
+            CLogger::GetInstance()->LogFormat(LOG_INFO, L"Existing installation detected at: %s", installedPath.c_str());
+            
+            // 执行静默卸载
+            if (!ExecuteSilentUninstall(uninstallerPath))
+            {
+                CLogger::GetInstance()->LogInfo(L"Existing version uninstalled successfully");
+            }
+            else
+            {
+                CLogger::GetInstance()->LogError(L"Failed to uninstall existing version");
+            }
         }
         
         // 安装前检查
@@ -513,7 +541,7 @@ void CInstallerWnd::DoInstall()
         if (!PathFileExists(m_tempDir.c_str()))
         {
             UpdateProgress(0, L"progress_7zdll_not_found");
-            Sleep(2000);
+            Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
@@ -530,7 +558,7 @@ void CInstallerWnd::DoInstall()
         {
             CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Failed to create temp directory: 0x%08X", hrDir);
             UpdateProgress(0, L"progress_create_temp_failed");
-            Sleep(2000);
+            Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
@@ -557,7 +585,7 @@ void CInstallerWnd::DoInstall()
         if (h7zRes == NULL)
         {
             UpdateProgress(0, L"progress_resource_7zdll_not_found");
-            Sleep(5000);
+            Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
@@ -569,7 +597,7 @@ void CInstallerWnd::DoInstall()
         if (hAppRes == NULL)
         {
             UpdateProgress(0, L"progress_resource_app_not_found");
-            Sleep(5000);
+            Sleep(3000);
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
         }
@@ -596,7 +624,7 @@ void CInstallerWnd::DoInstall()
         {
             CLogger::GetInstance()->LogError(L"Failed to extract installation package");
             UpdateProgress(0, L"progress_extract_package_failed");
-            Sleep(2000);
+            Sleep(3000);
             RollbackInstallation();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
             return;
@@ -643,7 +671,7 @@ void CInstallerWnd::DoInstall()
         {
             CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Failed to create install directory: 0x%08X", hrInstallDir);
             UpdateProgress(0, L"progress_create_install_dir_failed");
-            Sleep(2000);
+            Sleep(3000);
             delete extractor;
             RollbackInstallation();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
@@ -670,7 +698,7 @@ void CInstallerWnd::DoInstall()
         {
             CLogger::GetInstance()->LogError(L"Failed to extract files");
             UpdateProgress(0, L"progress_extract_files_failed");
-            Sleep(2000);
+            Sleep(3000);
             delete extractor;
             RollbackInstallation();
             ::PostMessage(m_hWnd, WM_INSTALL_COMPLETE, FALSE, 0);
@@ -741,12 +769,10 @@ void CInstallerWnd::DoInstall()
         {
             CLogger::GetInstance()->LogWarning(L"Failed to write registry");
         }
-        Sleep(300);
         
         // 上报安装信息
-        UpdateProgress(95, L"progress_reporting_analytics");
+        UpdateProgress(95, L"progress_writing_registry");
         CAnalytics::GetInstance()->ReportInstall(m_strInstallPath);
-        Sleep(300);
         
         // 安装完成
         UpdateProgress(100, L"progress_installation_complete");
@@ -906,4 +932,138 @@ void CInstallerWnd::HandleRelatedControlClick(CControlUI* pControl)
             m_pm.SendNotify(pOption, DUI_MSGTYPE_SELECTCHANGED);
         }
     }
+}
+
+bool CInstallerWnd::IsApplicationInstalled(std::wstring& installedPath, std::wstring& uninstallerPath)
+{
+    std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + APP_REGISTRY_KEYS;
+    
+    HKEY hKey = NULL;
+    // 先尝试从 HKLM 读取
+    LONG lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey);
+    
+    // 如果 HKLM 没有，尝试从 HKCU 读取
+    if (lResult != ERROR_SUCCESS)
+    {
+        lResult = RegOpenKeyEx(HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey);
+    }
+    
+    if (lResult != ERROR_SUCCESS)
+    {
+        // 未找到注册表项，说明未安装
+        return false;
+    }
+    
+    bool isInstalled = false;
+    
+    // 读取安装路径
+    WCHAR szInstallPath[MAX_PATH] = { 0 };
+    DWORD dwSize = sizeof(szInstallPath);
+    if (RegQueryValueEx(hKey, L"InstallLocation", NULL, NULL, (LPBYTE)szInstallPath, &dwSize) == ERROR_SUCCESS)
+    {
+        installedPath = szInstallPath;
+        
+        // 读取卸载程序路径
+        WCHAR szUninstallString[MAX_PATH * 2] = { 0 };
+        dwSize = sizeof(szUninstallString);
+        if (RegQueryValueEx(hKey, L"UninstallString", NULL, NULL, (LPBYTE)szUninstallString, &dwSize) == ERROR_SUCCESS)
+        {
+            // UninstallString 格式可能是 "C:\path\Uninstaller.exe" 或 C:\path\Uninstaller.exe
+            std::wstring uninstallStr = szUninstallString;
+            
+            // 移除开头和结尾的引号
+            if (!uninstallStr.empty() && uninstallStr[0] == L'\"')
+            {
+                uninstallStr = uninstallStr.substr(1);
+            }
+            if (!uninstallStr.empty() && uninstallStr[uninstallStr.length() - 1] == L'\"')
+            {
+                uninstallStr = uninstallStr.substr(0, uninstallStr.length() - 1);
+            }
+            
+            uninstallerPath = uninstallStr;
+            isInstalled = true;
+        }
+    }
+    
+    RegCloseKey(hKey);
+    return isInstalled;
+}
+
+bool CInstallerWnd::ExecuteSilentUninstall(const std::wstring& uninstallerPath)
+{
+    // 检查卸载程序是否存在
+    if (!PathFileExists(uninstallerPath.c_str()))
+    {
+        CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Uninstaller not found: %s", uninstallerPath.c_str());
+        return false;
+    }
+    
+    CLogger::GetInstance()->LogFormat(LOG_INFO, L"Executing silent uninstall: %s", uninstallerPath.c_str());
+    
+    // 构建命令行（添加 /S 参数进行静默卸载）
+    std::wstring cmdLine = L"\"" + uninstallerPath + L"\" /S";
+    
+    // 创建进程信息结构
+    STARTUPINFO si = { 0 };
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESHOWWINDOW;
+    si.wShowWindow = SW_HIDE;  // 隐藏窗口
+    
+    PROCESS_INFORMATION pi = { 0 };
+    
+    // 准备命令行缓冲区（CreateProcess 需要可修改的缓冲区）
+    WCHAR szCmdLine[1024] = { 0 };
+    wcscpy_s(szCmdLine, cmdLine.c_str());
+    
+    // 启动卸载程序
+    if (!CreateProcess(NULL, szCmdLine, NULL, NULL, FALSE, 
+                       CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+        DWORD dwError = GetLastError();
+        CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Failed to start uninstaller, error code: %d", dwError);
+        return false;
+    }
+    
+    CLogger::GetInstance()->LogInfo(L"Uninstaller process started, waiting for completion...");
+    
+    // 等待卸载程序完成（最多等待 5 分钟）
+    DWORD dwWaitResult = WaitForSingleObject(pi.hProcess, 5 * 60 * 1000);
+    
+    bool success = false;
+    if (dwWaitResult == WAIT_OBJECT_0)
+    {
+        // 获取退出代码
+        DWORD dwExitCode = 0;
+        if (GetExitCodeProcess(pi.hProcess, &dwExitCode))
+        {
+            if (dwExitCode == 0)
+            {
+                CLogger::GetInstance()->LogInfo(L"Uninstaller completed successfully");
+                success = true;
+                
+                // 等待一段时间确保文件删除完成
+                Sleep(2000);
+            }
+            else
+            {
+                CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Uninstaller failed with exit code: %d", dwExitCode);
+            }
+        }
+    }
+    else if (dwWaitResult == WAIT_TIMEOUT)
+    {
+        CLogger::GetInstance()->LogError(L"Uninstaller timeout (exceeded 5 minutes)");
+        TerminateProcess(pi.hProcess, 1);
+    }
+    else
+    {
+        CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Wait for uninstaller failed, error: %d", GetLastError());
+    }
+    
+    // 清理句柄
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    
+    return success;
 }

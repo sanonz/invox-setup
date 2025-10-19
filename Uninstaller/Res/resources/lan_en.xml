@@ -12,7 +12,6 @@
   <Text id="progress_preparing" value="Preparing uninstallation..." />
   <Text id="progress_app_running" value="Application is running, attempting to close..." />
   <Text id="progress_app_close_failed" value="Unable to close application, please close manually and try again!" />
-  <Text id="progress_reporting_analytics" value="Reporting uninstallation information..." />
   <Text id="progress_calculating_size" value="Calculating file size..." />
   <Text id="progress_removing_shortcuts" value="Removing shortcuts..." />
   <Text id="progress_removing_files" value="Removing files..." />

@@ -21,6 +21,9 @@ public:
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
     virtual LPCTSTR QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType);
+    
+    // 静默卸载（不显示 UI）
+    bool DoSilentUninstall();
 
 protected:
     // 界面控件 - 第一页（反馈页面）

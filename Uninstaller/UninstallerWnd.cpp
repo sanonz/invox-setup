@@ -305,31 +305,26 @@ void CUninstallerWnd::DoUninstall()
         
         // 更新进度：开始卸载
         UpdateProgress(0, L"progress_preparing");
-        Sleep(500);
+        Sleep(300);
         
         // 检查目标程序是否正在运行
         if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
         {
-            CLogger::GetInstance()->LogWarning(L"Target application is running, attempting to close");
             UpdateProgress(0, L"progress_app_running");
+            CLogger::GetInstance()->LogWarning(L"Target application is running, attempting to close");
             
             if (!CInstallHelper::KillProcess(APP_EXE_NAME, 5000))
             {
-                CLogger::GetInstance()->LogError(L"Failed to close application");
                 UpdateProgress(0, L"progress_app_close_failed");
+                CLogger::GetInstance()->LogError(L"Failed to close application");
                 Sleep(3000);
                 ::PostMessage(m_hWnd, WM_UNINSTALL_COMPLETE, FALSE, 0);
                 return;
             }
             
             CLogger::GetInstance()->LogInfo(L"Application closed successfully");
-            Sleep(1000);
+            Sleep(300);
         }
-        
-        // 上报卸载信息
-        UpdateProgress(5, L"progress_reporting_analytics");
-        CAnalytics::GetInstance()->ReportUninstall(m_strReason, m_strFeedback);
-        Sleep(300);
         
         // 检查是否需要中止
         if (!m_bUninstalling)
@@ -340,7 +335,7 @@ void CUninstallerWnd::DoUninstall()
         }
         
         // 删除桌面快捷方式
-        UpdateProgress(15, L"progress_removing_shortcuts");
+        UpdateProgress(5, L"progress_removing_shortcuts");
         if (CInstallHelper::RemoveDesktopShortcut(APP_PRODUCT_NAME))
         {
             CLogger::GetInstance()->LogInfo(L"Desktop shortcut deleted successfully");
@@ -350,8 +345,9 @@ void CUninstallerWnd::DoUninstall()
             CLogger::GetInstance()->LogWarning(L"Desktop shortcut does not exist or failed to delete");
         }
         Sleep(300);
-                // 删除安装文件
-        UpdateProgress(30, L"progress_removing_files");
+        
+        // 删除安装文件
+        UpdateProgress(10, L"progress_removing_files");
         
         // 收集所有需要删除的文件和目录
         std::vector<std::wstring> filesToDelete;
@@ -378,7 +374,7 @@ void CUninstallerWnd::DoUninstall()
             RemoveDirectory(it->c_str());
             
             processedItems++;
-            int progress = 30 + (processedItems * 50 / totalItems);
+            int progress = 10 + (processedItems * 70 / totalItems);
             UpdateProgress(progress, L"progress_removing_files");
         }
         
@@ -417,6 +413,10 @@ void CUninstallerWnd::DoUninstall()
             CLogger::GetInstance()->LogWarning(L"Failed to clean up registry");
         }
         Sleep(300);
+        
+        // 上报卸载信息
+        UpdateProgress(95, L"progress_cleaning_registry");
+        CAnalytics::GetInstance()->ReportUninstall(m_strReason, m_strFeedback);
         
         // 卸载完成
         UpdateProgress(100, L"progress_complete");
@@ -600,4 +600,85 @@ void CUninstallerWnd::CollectFilesAndDirectories(const std::wstring& rootPath,
     } while (FindNextFile(hFind, &findData));
     
     FindClose(hFind);
+}
+
+bool CUninstallerWnd::DoSilentUninstall()
+{
+    bool success = false;
+    
+    try
+    {
+        // 初始化日志
+        std::wstring logPath = m_strInstallPath + L"\\uninstall_silent.log";
+        CLogger::GetInstance()->SetLogFile(logPath);
+        CLogger::GetInstance()->LogInfo(L"========== Silent Uninstallation Started ==========");
+        CLogger::GetInstance()->LogFormat(LOG_INFO, L"Uninstall Path: %s", m_strInstallPath.c_str());
+        
+        // 检查目标程序是否正在运行
+        if (CInstallHelper::IsProcessRunning(APP_EXE_NAME))
+        {
+            CLogger::GetInstance()->LogWarning(L"Target application is running, attempting to close");
+            
+            if (!CInstallHelper::KillProcess(APP_EXE_NAME, 5000))
+            {
+                CLogger::GetInstance()->LogError(L"Failed to close application");
+                return false;
+            }
+            
+            CLogger::GetInstance()->LogInfo(L"Application closed successfully");
+            Sleep(1000);
+        }
+        
+        // 删除桌面快捷方式
+        if (CInstallHelper::RemoveDesktopShortcut(APP_PRODUCT_NAME))
+        {
+            CLogger::GetInstance()->LogInfo(L"Desktop shortcut deleted successfully");
+        }
+        
+        // 删除安装文件
+        std::vector<std::wstring> filesToDelete;
+        std::vector<std::wstring> dirsToDelete;
+        CollectFilesAndDirectories(m_strInstallPath, filesToDelete, dirsToDelete);
+        
+        // 删除文件
+        for (const auto& file : filesToDelete)
+        {
+            SetFileAttributes(file.c_str(), FILE_ATTRIBUTE_NORMAL);
+            DeleteFile(file.c_str());
+        }
+        
+        // 删除目录（从最深层开始）
+        for (auto it = dirsToDelete.rbegin(); it != dirsToDelete.rend(); ++it)
+        {
+            ::RemoveDirectory(it->c_str());
+        }
+        
+        CLogger::GetInstance()->LogInfo(L"Application files deleted successfully");
+        
+        // 删除开始菜单快捷方式
+        if (CInstallHelper::RemoveStartMenuShortcut(APP_PRODUCT_NAME))
+        {
+            CLogger::GetInstance()->LogInfo(L"Start menu shortcut deleted successfully");
+        }
+        
+        // 删除注册表
+        if (CInstallHelper::RemoveUninstallRegistry(APP_REGISTRY_KEYS))
+        {
+            CLogger::GetInstance()->LogInfo(L"Registry cleaned up successfully");
+        }
+        
+        CLogger::GetInstance()->LogInfo(L"Silent uninstallation completed successfully");
+        
+        // 自删除
+        SelfDelete();
+        
+        success = true;
+    }
+    catch (...)
+    {
+        CLogger::GetInstance()->LogError(L"Exception occurred during silent uninstallation");
+        success = false;
+    }
+    
+    return success;
 }

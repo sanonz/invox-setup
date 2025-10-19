@@ -321,6 +321,11 @@ bool CInstallHelper::WriteUninstallRegistry(const std::wstring& keys,
         RegSetValueEx(hKey, L"UninstallString", 0, REG_SZ,
             (BYTE*)uninstallCmd.c_str(), static_cast<DWORD>((uninstallCmd.length() + 1) * sizeof(WCHAR)));
         
+        // 写入静默卸载命令
+        std::wstring quietUninstallCmd = L"\"" + uninstallPath + L"\" /S";
+        RegSetValueEx(hKey, L"QuietUninstallString", 0, REG_SZ,
+            (BYTE*)quietUninstallCmd.c_str(), static_cast<DWORD>((quietUninstallCmd.length() + 1) * sizeof(WCHAR)));
+        
         // 写入应用图标路径
         if (!iconPath.empty())
         {

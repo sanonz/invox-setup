@@ -64,8 +64,35 @@ void InitResource()
     }
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int nCmdShow)
 {
+    // 检查是否是静默卸载模式
+    bool bSilentMode = false;
+    if (lpCmdLine != NULL && strlen(lpCmdLine) > 0)
+    {
+        std::string cmdLine(lpCmdLine);
+        // 检查命令行参数是否包含 /S 或 /s
+        if (cmdLine.find("/S") != std::string::npos || cmdLine.find("/s") != std::string::npos)
+        {
+            bSilentMode = true;
+        }
+    }
+    
+    // 如果是静默模式，直接执行卸载并退出
+    if (bSilentMode)
+    {
+        HRESULT Hr = ::CoInitialize(NULL);
+        if (FAILED(Hr))
+            return 1;
+        
+        CUninstallerWnd uninstaller;
+        bool success = uninstaller.DoSilentUninstall();
+        
+        ::CoUninitialize();
+        
+        return success ? 0 : 1;
+    }
+    
     // 创建全局命名互斥体，防止多实例运行
     // 使用 Global\ 前缀使其在所有会话中可见
     HANDLE hMutex = ::CreateMutex(NULL, TRUE, _T("Global\\") APP_NAME _T("_Uninstaller_SingleInstance"));

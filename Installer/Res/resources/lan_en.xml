@@ -14,6 +14,7 @@
   
   <!-- Progress messages -->
   <Text id="progress_preparing" value="Preparing installation..." />
+  <Text id="progress_app_running_confirm" value="The application is running, are you sure to close it?" />
   <Text id="progress_app_running" value="Application is running, please close it first!" />
   <Text id="progress_insufficient_privilege" value="Insufficient privileges, please run as administrator!" />
   <Text id="progress_path_too_long" value="Installation path is too long, please select a shorter path!" />
@@ -36,7 +37,6 @@
   <Text id="progress_creating_start_menu" value="Creating start menu shortcut..." />
   <Text id="progress_creating_desktop_shortcut" value="Creating desktop shortcut..." />
   <Text id="progress_writing_registry" value="Writing registry..." />
-  <Text id="progress_reporting_analytics" value="Reporting installation information..." />
   <Text id="progress_installation_complete" value="Installation completed!" />
   <Text id="progress_rollback_cleaning" value="Installation failed, cleaning up..." />
   <Text id="progress_extracting_with_percent" value="Extracting files... %d%%" />
@@ -45,7 +45,7 @@
   <Text id="msgbox_title" value="Alert" />
   <Text id="msgbox_confirm" value="Confirm" />
   <Text id="msgbox_cancel" value="Cancel" />
-  <Text id="msgbox_install_path_overwrite_message" value="Installation path already exists. Do you want to overwrite it?" />
+  <Text id="msgbox_install_path_overwrite_message" value="Installation directory already exists. Do you want to overwrite it?" />
   <Text id="msgbox_install_path_overwrite_confirm" value="Overwrite" />
   <Text id="msgbox_install_path_overwrite_cancel" value="Reselect" />
   <Text id="msgbox_confirm_exit_message" value="Installation is in progress. Are you sure you want to exit?{\n}All installed content will be rolled back." />
