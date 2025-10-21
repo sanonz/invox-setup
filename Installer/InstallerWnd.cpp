@@ -467,7 +467,7 @@ void CInstallerWnd::DoInstall()
             CLogger::GetInstance()->LogFormat(LOG_INFO, L"Existing installation detected at: %s", installedPath.c_str());
             
             // 执行静默卸载
-            if (!ExecuteSilentUninstall(uninstallerPath))
+            if (ExecuteSilentUninstall(uninstallerPath))
             {
                 CLogger::GetInstance()->LogInfo(L"Existing version uninstalled successfully");
             }
@@ -757,9 +757,9 @@ void CInstallerWnd::DoInstall()
         
         // 写入注册表
         UpdateProgress(90, L"progress_writing_registry");
-        std::wstring uninstallPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
+        uninstallerPath = m_strInstallPath + L"\\" + APP_UNINSTALL_NAME;
         if (CInstallHelper::WriteUninstallRegistry(APP_REGISTRY_KEYS, APP_PRODUCT_NAME, APP_VERSION, APP_PUBLISHER,
-            m_strInstallPath, uninstallPath, exePath, m_totalBytes))
+            m_strInstallPath, uninstallerPath, exePath, m_totalBytes))
         {
             m_currentStep = STEP_REGISTRY_WRITTEN;
             m_registryWritten = true;
@@ -966,22 +966,9 @@ bool CInstallerWnd::IsApplicationInstalled(std::wstring& installedPath, std::wst
         // 读取卸载程序路径
         WCHAR szUninstallString[MAX_PATH * 2] = { 0 };
         dwSize = sizeof(szUninstallString);
-        if (RegQueryValueEx(hKey, L"UninstallString", NULL, NULL, (LPBYTE)szUninstallString, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueEx(hKey, L"QuietUninstallString", NULL, NULL, (LPBYTE)szUninstallString, &dwSize) == ERROR_SUCCESS)
         {
-            // UninstallString 格式可能是 "C:\path\Uninstaller.exe" 或 C:\path\Uninstaller.exe
-            std::wstring uninstallStr = szUninstallString;
-            
-            // 移除开头和结尾的引号
-            if (!uninstallStr.empty() && uninstallStr[0] == L'\"')
-            {
-                uninstallStr = uninstallStr.substr(1);
-            }
-            if (!uninstallStr.empty() && uninstallStr[uninstallStr.length() - 1] == L'\"')
-            {
-                uninstallStr = uninstallStr.substr(0, uninstallStr.length() - 1);
-            }
-            
-            uninstallerPath = uninstallStr;
+            uninstallerPath = szUninstallString;
             isInstalled = true;
         }
     }
@@ -992,17 +979,36 @@ bool CInstallerWnd::IsApplicationInstalled(std::wstring& installedPath, std::wst
 
 bool CInstallerWnd::ExecuteSilentUninstall(const std::wstring& uninstallerPath)
 {
-    // 检查卸载程序是否存在
-    if (!PathFileExists(uninstallerPath.c_str()))
+    // uninstallerPath 已经包含完整的卸载命令（带引号和 /S 参数）
+    
+    // 提取实际的可执行文件路径用于检查文件是否存在
+    std::wstring exePath = uninstallerPath;
+    size_t firstQuote = exePath.find(L'"');
+    size_t secondQuote = exePath.find(L'"', firstQuote + 1);
+    
+    if (firstQuote != std::wstring::npos && secondQuote != std::wstring::npos)
     {
-        CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Uninstaller not found: %s", uninstallerPath.c_str());
+        // 提取引号中的路径
+        exePath = exePath.substr(firstQuote + 1, secondQuote - firstQuote - 1);
+    }
+    else
+    {
+        // 如果没有引号，尝试提取空格前的路径
+        size_t spacePos = exePath.find(L' ');
+        if (spacePos != std::wstring::npos)
+        {
+            exePath = exePath.substr(0, spacePos);
+        }
+    }
+    
+    // 检查卸载程序是否存在
+    if (!PathFileExists(exePath.c_str()))
+    {
+        CLogger::GetInstance()->LogFormat(LOG_ERROR, L"Uninstaller not found: %s", exePath.c_str());
         return false;
     }
     
     CLogger::GetInstance()->LogFormat(LOG_INFO, L"Executing silent uninstall: %s", uninstallerPath.c_str());
-    
-    // 构建命令行（添加 /S 参数进行静默卸载）
-    std::wstring cmdLine = L"\"" + uninstallerPath + L"\" /S";
     
     // 创建进程信息结构
     STARTUPINFO si = { 0 };
@@ -1014,7 +1020,7 @@ bool CInstallerWnd::ExecuteSilentUninstall(const std::wstring& uninstallerPath)
     
     // 准备命令行缓冲区（CreateProcess 需要可修改的缓冲区）
     WCHAR szCmdLine[1024] = { 0 };
-    wcscpy_s(szCmdLine, cmdLine.c_str());
+    wcscpy_s(szCmdLine, uninstallerPath.c_str());
     
     // 启动卸载程序
     if (!CreateProcess(NULL, szCmdLine, NULL, NULL, FALSE, 
