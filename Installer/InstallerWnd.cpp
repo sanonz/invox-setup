@@ -388,7 +388,7 @@ void CInstallerWnd::BrowseInstallPath()
 void CInstallerWnd::StartInstall()
 {
     // 确保路径以应用名称结尾
-    // m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
+    m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
 
     // 检查安装路径是否已存在
     if (PathFileExists(m_strInstallPath.c_str()))
@@ -398,8 +398,8 @@ void CInstallerWnd::StartInstall()
             m_hWnd, 
             L"msgbox_install_path_overwrite_message",
             NULL,
-            GetLocalizedText(L"msgbox_install_path_overwrite_confirm").c_str(),
-            GetLocalizedText(L"msgbox_install_path_overwrite_cancel").c_str()))
+            L"msgbox_install_path_overwrite_confirm",
+            L"msgbox_install_path_overwrite_cancel"))
         {
             CLogger::GetInstance()->LogInfo(L"User cancelled installation due to existing path");
             return;
