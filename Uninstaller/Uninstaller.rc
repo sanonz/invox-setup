@@ -91,7 +91,7 @@ BEGIN
         BLOCK "080404b0"
         BEGIN
             VALUE "CompanyName", APP_PUBLISHER
-            VALUE "FileDescription", L"MyElectronApp Uninstaller"
+            VALUE "FileDescription", APP_DESCRIPTION
             VALUE "FileVersion", APP_VERSION
             VALUE "InternalName", "Uninstaller.exe"
             VALUE "LegalCopyright", APP_COPYRIGHT
