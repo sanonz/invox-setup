@@ -460,11 +460,10 @@ void CInstallerWnd::DoInstall()
         }
         
         // 检测是否已安装
-        std::wstring installedPath;
         std::wstring uninstallerPath;
-        if (IsApplicationInstalled(installedPath, uninstallerPath))
+        if (IsApplicationInstalled(uninstallerPath))
         {
-            CLogger::GetInstance()->LogFormat(LOG_INFO, L"Existing installation detected at: %s", installedPath.c_str());
+            CLogger::GetInstance()->LogFormat(LOG_INFO, L"Existing installation found");
             
             // 执行静默卸载
             if (ExecuteSilentUninstall(uninstallerPath))
@@ -934,7 +933,7 @@ void CInstallerWnd::HandleRelatedControlClick(CControlUI* pControl)
     }
 }
 
-bool CInstallerWnd::IsApplicationInstalled(std::wstring& installedPath, std::wstring& uninstallerPath)
+bool CInstallerWnd::IsApplicationInstalled(std::wstring& uninstallerPath)
 {
     std::wstring regPath = std::wstring(REG_UNINSTALL_PATH) + APP_REGISTRY_KEYS;
     
@@ -956,21 +955,13 @@ bool CInstallerWnd::IsApplicationInstalled(std::wstring& installedPath, std::wst
     
     bool isInstalled = false;
     
-    // 读取安装路径
-    WCHAR szInstallPath[MAX_PATH] = { 0 };
-    DWORD dwSize = sizeof(szInstallPath);
-    if (RegQueryValueEx(hKey, L"InstallLocation", NULL, NULL, (LPBYTE)szInstallPath, &dwSize) == ERROR_SUCCESS)
+    // 读取卸载程序路径
+    WCHAR szUninstallString[MAX_PATH * 2] = { 0 };
+    DWORD dwSize = sizeof(szUninstallString);
+    if (RegQueryValueEx(hKey, L"QuietUninstallString", NULL, NULL, (LPBYTE)szUninstallString, &dwSize) == ERROR_SUCCESS)
     {
-        installedPath = szInstallPath;
-        
-        // 读取卸载程序路径
-        WCHAR szUninstallString[MAX_PATH * 2] = { 0 };
-        dwSize = sizeof(szUninstallString);
-        if (RegQueryValueEx(hKey, L"QuietUninstallString", NULL, NULL, (LPBYTE)szUninstallString, &dwSize) == ERROR_SUCCESS)
-        {
-            uninstallerPath = szUninstallString;
-            isInstalled = true;
-        }
+        uninstallerPath = szUninstallString;
+        isInstalled = true;
     }
     
     RegCloseKey(hKey);

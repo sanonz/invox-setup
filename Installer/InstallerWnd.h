@@ -85,7 +85,7 @@ private:
     void RollbackInstallation();
     
     // 检测是否已安装
-    bool IsApplicationInstalled(std::wstring& installedPath, std::wstring& uninstallerPath);
+    bool IsApplicationInstalled(std::wstring& uninstallerPath);
     
     // 执行静默卸载
     bool ExecuteSilentUninstall(const std::wstring& uninstallerPath);
