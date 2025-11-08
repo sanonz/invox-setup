@@ -43,11 +43,11 @@
 			</VerticalLayout>
 			<!--	安装按钮	-->
 			<HorizontalLayout childalign="center">
-				<Button name="quick_install_btn" text="install_now" resourcetext="true" style="btn_primary" width="200" height="40" padding="0,40,0,0" enabled="false" />
+				<Button name="quick_install_btn" text="install_now" resourcetext="true" style="btn_primary" width="200" height="40" padding="0,40,0,0"/>
 			</HorizontalLayout>
 			<!--	底部：切换自定义安装和协议	-->
-			<HorizontalLayout height="26" childvalign="bottom" padding="10,10,10,6">
-				<HorizontalLayout childvalign="vcenter">
+			<HorizontalLayout height="26" childvalign="bottom" padding="0,10,10,6">
+				<HorizontalLayout name="agree_area" childvalign="vcenter" padding="10,0,0,0">
 					<CheckBox name="agree_check" />
 					<Button name="agree_label" text="agree_prefix" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" padding="5,0,0,0" userdata="agree_check" />
 					<Button name="privacy_link" text="privacy_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />
@@ -73,7 +73,7 @@
 					</HorizontalLayout>
 					<Control height="20" />
 					<!--	安装按钮	-->
-					<Button name="custom_install_btn" text="install_now" resourcetext="true" style="btn_primary" width="200" height="40" enabled="false" />
+					<Button name="custom_install_btn" text="install_now" resourcetext="true" style="btn_primary" width="200" height="40" />
 					<!--	桌面快捷方式	-->
 					<HorizontalLayout height="26" childalign="center" childvalign="vcenter" padding="0,6,0,0">
 						<CheckBox name="desktop_check" />
@@ -82,8 +82,8 @@
 				</VerticalLayout>
 			</VerticalLayout>
 			<!--	底部：切换快速安装和协议	-->
-			<HorizontalLayout height="26" childvalign="vcenter" padding="10,10,10,6">
-				<HorizontalLayout childvalign="vcenter">
+			<HorizontalLayout height="26" childvalign="vcenter" padding="0,10,10,6">
+				<HorizontalLayout name="agree_area2" childvalign="vcenter" padding="10,0,0,0">
 					<CheckBox name="agree_check_custom" />
 					<Button name="agree_label_custom" text="agree_prefix" resourcetext="true" style="text_primary" font="0" hottextcolor="#FFFFFFFF" autocalcwidth="true" padding="5,0,0,0" userdata="agree_check_custom" />
 					<Button name="privacy_link_custom" text="privacy_text" resourcetext="true" style="text_link" font="0" autocalcwidth="true" padding="2,0,0,0" cursor="hand" />

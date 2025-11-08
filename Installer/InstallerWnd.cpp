@@ -36,14 +36,24 @@ CInstallerWnd::CInstallerWnd()
     , m_startMenuCreated(false)
     , m_desktopShortcutCreated(false)
     , m_registryWritten(false)
+    , m_pShakingControl(NULL)
+    , m_shakeStep(0)
+    , m_shakeTimerId(0)
 {
     // 默认安装路径
     m_strInstallPath = CInstallHelper::GetProgramFilesPath();
     m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
+    memset(&m_shakeOriginalPos, 0, sizeof(RECT));
 }
 
 CInstallerWnd::~CInstallerWnd()
 {
+    if (m_shakeTimerId != 0)
+    {
+        ::KillTimer(m_hWnd, m_shakeTimerId);
+        m_shakeTimerId = 0;
+    }
+    
     if (m_hInstallThread)
     {
         CloseHandle(m_hInstallThread);
@@ -73,7 +83,12 @@ LRESULT CInstallerWnd::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
     CResourceManager::GetInstance()->LoadLanguage(langFile.c_str());
     
     // 调用基类的 OnCreate，它会创建 UI 并调用 InitWindow
-    return WindowImplBase::OnCreate(uMsg, wParam, lParam, bHandled);
+    LRESULT lRes = WindowImplBase::OnCreate(uMsg, wParam, lParam, bHandled);
+    
+    // 设置窗口用户数据，以便定时器回调可以访问
+    ::SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
+    
+    return lRes;
 }
 
 void CInstallerWnd::InitWindow()
@@ -115,16 +130,6 @@ void CInstallerWnd::InitWindow()
     if (m_pPathEdit)
     {
         m_pPathEdit->SetText(m_strInstallPath.c_str());
-    }
-    
-    if (m_pInstallBtn)
-    {
-        m_pInstallBtn->SetEnabled(false);
-    }
-    
-    if (m_pCustomInstallBtn)
-    {
-        m_pCustomInstallBtn->SetEnabled(false);
     }
     
     if (m_pDesktopCheck)
@@ -248,20 +253,12 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
             CCheckBoxUI* pCheckBox = dynamic_cast<CCheckBoxUI*>(msg.pSender);
             
             // 协议勾选状态改变（快速安装页面）
-            if (pCheckBox && m_pInstallBtn)
-            {
-                m_pInstallBtn->SetEnabled(pCheckBox->IsSelected());
-            }
             if (m_pAgreeCheck)
             {
                 m_pAgreeCheck->SetCheck(pCheckBox->IsSelected());
             }
             
             // 协议勾选状态改变（自定义安装页面）
-            if (pCheckBox && m_pCustomInstallBtn)
-            {
-                m_pCustomInstallBtn->SetEnabled(pCheckBox->IsSelected());
-            }
             if (m_pAgreeCheckCustom)
             {
                 m_pAgreeCheckCustom->SetCheck(pCheckBox->IsSelected());
@@ -387,6 +384,23 @@ void CInstallerWnd::BrowseInstallPath()
 
 void CInstallerWnd::StartInstall()
 {
+    // 检查是否同意协议
+    if (m_pAgreeCheck && !m_pAgreeCheck->IsSelected())
+    {
+        // 未同意协议，触发抖动动画提醒用户
+        CContainerUI* pAgreeArea = static_cast<CContainerUI*>(m_pm.FindControl(_T("agree_area")));
+        CContainerUI* pAgreeArea2 = static_cast<CContainerUI*>(m_pm.FindControl(_T("agree_area2")));
+        if (pAgreeArea && pAgreeArea->IsVisible())
+        {
+            ShakeControl(pAgreeArea);
+        }
+        else if (pAgreeArea2 && pAgreeArea2->IsVisible())
+        {
+            ShakeControl(pAgreeArea2);
+        }
+        return;
+    }
+
     // 确保路径以应用名称结尾
     m_strInstallPath = CInstallHelper::EnsureAppNameInPath(m_strInstallPath, APP_NAME);
 
@@ -1063,4 +1077,72 @@ bool CInstallerWnd::ExecuteSilentUninstall(const std::wstring& uninstallerPath)
     CloseHandle(pi.hThread);
     
     return success;
+}
+
+// 抖动动画实现
+void CInstallerWnd::ShakeControl(CControlUI* pControl)
+{
+    if (!pControl || m_pShakingControl != NULL)
+    {
+        // 如果已经有控件在抖动，忽略新的抖动请求
+        return;
+    }
+    
+    m_pShakingControl = pControl;
+    m_shakeOriginalPos = pControl->GetPos();
+    m_shakeStep = 0;
+    
+    // 创建定时器，每60ms触发一次
+    m_shakeTimerId = ::SetTimer(m_hWnd, 1001, 60, ShakeTimerProc);
+}
+
+void CALLBACK CInstallerWnd::ShakeTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+    CInstallerWnd* pThis = (CInstallerWnd*)::GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    if (!pThis || !pThis->m_pShakingControl)
+    {
+        return;
+    }
+    
+    // 抖动偏移量数组（左右抖动）
+    const int shakeOffsets[] = { 0, -6, 6, -4, 4, -2, 2, 0 };
+    const int totalSteps = sizeof(shakeOffsets) / sizeof(int);
+    
+    if (pThis->m_shakeStep < totalSteps)
+    {
+        // 计算新位置
+        RECT newPos = pThis->m_shakeOriginalPos;
+        newPos.left += shakeOffsets[pThis->m_shakeStep];
+        newPos.right += shakeOffsets[pThis->m_shakeStep];
+        
+        // 设置新位置并触发重绘
+        pThis->m_pShakingControl->SetPos(newPos, true);
+        
+        // 获取父容器并强制刷新整个区域以避免残影
+        CControlUI* pParent = pThis->m_pShakingControl->GetParent();
+        if (pParent)
+        {
+            pParent->Invalidate();
+        }
+        
+        pThis->m_shakeStep++;
+    }
+    else
+    {
+        // 抖动完成，恢复原始位置
+        pThis->m_pShakingControl->SetPos(pThis->m_shakeOriginalPos, true);
+        
+        // 最后再次刷新父容器以清除所有残影
+        CControlUI* pParent = pThis->m_pShakingControl->GetParent();
+        if (pParent)
+        {
+            pParent->Invalidate();
+        }
+        
+        // 停止定时器
+        ::KillTimer(hwnd, idEvent);
+        pThis->m_shakeTimerId = 0;
+        pThis->m_pShakingControl = NULL;
+        pThis->m_shakeStep = 0;
+    }
 }

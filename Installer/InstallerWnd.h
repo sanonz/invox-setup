@@ -89,6 +89,10 @@ private:
     
     // 执行静默卸载
     bool ExecuteSilentUninstall(const std::wstring& uninstallerPath);
+    
+    // 抖动动画提醒
+    void ShakeControl(CControlUI* pControl);
+    static void CALLBACK ShakeTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 private:
     // 安装步骤追踪
@@ -116,4 +120,10 @@ private:
     HANDLE m_hInstallThread;
     bool m_bInstalling;
     UINT64 m_totalBytes;
+    
+    // 抖动动画相关
+    CControlUI* m_pShakingControl;
+    RECT m_shakeOriginalPos;
+    int m_shakeStep;
+    UINT_PTR m_shakeTimerId;
 };
