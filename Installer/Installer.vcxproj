@@ -262,6 +262,7 @@
     <ClInclude Include="..\Common\InstallHelper.h" />
     <ClInclude Include="..\Common\MsgWnd.h" />
     <ClInclude Include="..\Common\Logger.h" />
+    <ClInclude Include="..\Common\LayoutHelper.h" />
     <ClInclude Include="7zTypes.h" />
     <ClInclude Include="7zExtractor.h" />
     <ClInclude Include="7zStreamHelpers.h" />

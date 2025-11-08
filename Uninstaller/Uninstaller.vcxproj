@@ -259,6 +259,7 @@
     <ClInclude Include="..\Common\InstallHelper.h" />
     <ClInclude Include="..\Common\MsgWnd.h" />
     <ClInclude Include="..\Common\Logger.h" />
+    <ClInclude Include="..\Common\LayoutHelper.h" />
     <ClInclude Include="UninstallerWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

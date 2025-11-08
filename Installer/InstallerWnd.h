@@ -53,6 +53,9 @@ protected:
     CButtonUI* m_pLaunchBtn;
 
 private:
+    // 布局初始化
+    void InitLayout();
+    
     // 切换页面
     void SwitchToPage(int pageIndex);
     

@@ -6,11 +6,13 @@
 #include "..\Common\Analytics.h"
 #include "..\Common\MsgWnd.h"
 #include "..\Common\Logger.h"
+#include "..\Common\LayoutHelper.h"
 #include <shlobj.h>
 #include <shellapi.h>
 
 #define WM_INSTALL_PROGRESS (WM_USER + 100)
 #define WM_INSTALL_COMPLETE (WM_USER + 101)
+#define WM_LAYOUT_COMPLETE  (WM_USER + 102)
 
 CInstallerWnd::CInstallerWnd()
     : m_pAgreeCheck(NULL)
@@ -144,6 +146,22 @@ void CInstallerWnd::InitWindow()
     CAnalytics::GetInstance()->SetEndpoint(ANALYTICS_ENDPOINT);
 }
 
+void CInstallerWnd::InitLayout()
+{
+    // 通过计算子级宽度总和示例
+    // CHorizontalLayoutUI* pAgreeArea = static_cast<CHorizontalLayoutUI*>(m_pm.FindControl(_T("agree_area")));
+    // if (pAgreeArea)
+    // {
+    //     // 计算实际宽度
+    //     int totalWidth = CLayoutHelper::GetChildrenTotalWidthWithAuto(pAgreeArea);
+    //     if (totalWidth > 0)
+    //     {
+    //         pAgreeArea->SetFixedWidth(totalWidth);
+    //         pAgreeArea->NeedParentUpdate();
+    //     }
+    // }
+}
+
 LPCTSTR CInstallerWnd::QueryControlText(LPCTSTR lpstrId, LPCTSTR lpstrType)
 {
     return NULL;
@@ -164,7 +182,8 @@ void CInstallerWnd::Notify(TNotifyUI& msg)
 {
     if (msg.sType == _T("windowinit"))
     {
-        // 窗口初始化
+        // 在下一个消息循环中计算布局
+        ::PostMessage(m_hWnd, WM_LAYOUT_COMPLETE, FALSE, 0);
     }
     else if (msg.sType == _T("click"))
     {
@@ -289,7 +308,12 @@ LRESULT CInstallerWnd::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
 LRESULT CInstallerWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    if (uMsg == WM_INSTALL_PROGRESS)
+    if (uMsg == (WM_LAYOUT_COMPLETE))
+    {
+        InitLayout();
+        return 0;
+    }
+    else if (uMsg == WM_INSTALL_PROGRESS)
     {
         int percent = (int)wParam;
         std::wstring* pText = (std::wstring*)lParam;
